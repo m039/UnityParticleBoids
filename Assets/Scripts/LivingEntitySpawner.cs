@@ -16,11 +16,24 @@ namespace GP4
 
         #endregion
 
+        [HideInInspector]
+        [SerializeField]
         int _numberOfEntitiesAlive = 0;
 
-        void Start()
+        bool _restart = false;
+
+        void OnEnable()
         {
-            CreateLivingEntity();
+            _restart = true;
+        }
+
+        void Update()
+        {
+            if (_restart)
+            {
+                CreateLivingEntity();
+                _restart = false;
+            }
         }
 
         void CreateLivingEntity()
@@ -35,7 +48,8 @@ namespace GP4
 
             while (_numberOfEntitiesAlive < numberOfEntities)
             {
-                LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10)).onGoOffScreen += () => { _numberOfEntitiesAlive--; CreateLivingEntity(); };
+                var entity = LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10));
+                entity.onGoOffScreen += () => { _numberOfEntitiesAlive--; CreateLivingEntity(); };
                 _numberOfEntitiesAlive++;
             }
         }

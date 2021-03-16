@@ -12,23 +12,18 @@ namespace GP4
         public Bounds SceneBounds {
             get
             {
-                var sceneBounds = _sceneCollider.bounds;
-                sceneBounds.center = sceneBounds.center.WithZ(0);
-                sceneBounds.size = sceneBounds.size.WithZ(0);
-                return sceneBounds;
+                var camera = Camera.main;
+                var height = camera.orthographicSize * 2;
+                var width = height * camera.aspect;
+
+                return new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
             }
         }
 
-        BoxCollider2D _sceneCollider;
-
-        void Awake()
+        private void OnDrawGizmosSelected()
         {
-            var camera = Camera.main;
-            var height = camera.orthographicSize * 2;
-            var width = height * camera.aspect;
-
-            _sceneCollider = camera.gameObject.AddComponent<BoxCollider2D>();
-            _sceneCollider.size = new Vector2(width, height);
+            Gizmos.color = Color.green;
+            GizmosUtils.DrawRect(SceneBounds.ToRect());
         }
 
     }
