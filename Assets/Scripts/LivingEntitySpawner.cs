@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using m039.Common;
 
 namespace GP4
 {
@@ -22,22 +23,32 @@ namespace GP4
 
         bool _restart = false;
 
-        void OnEnable()
-        {
-            _restart = true;
-        }
+        GameObject _parent;
 
-        void Update()
+        readonly List<LivingEntity> _entitiesCache = new List<LivingEntity>(4000);
+
+        private void Start()
         {
-            if (_restart)
-            {
-                CreateLivingEntity();
-                _restart = false;
-            }
+            CreateLivingEntity();
         }
 
         void CreateLivingEntity()
         {
+            while (_numberOfEntitiesAlive < numberOfEntities)
+            {
+                CreateEntityOrGetFromCache();
+                
+                _numberOfEntitiesAlive++;
+            }
+        }
+
+        LivingEntity CreateEntityOrGetFromCache()
+        {
+            if (_parent == null)
+            {
+                _parent = new GameObject("LivingEntitySpawner".Decorate());
+            }
+
             Vector3 getPosition()
             {
                 var center = GameScene.Instance.SceneBounds.center;
@@ -46,12 +57,32 @@ namespace GP4
                 return center + size;
             }
 
-            while (_numberOfEntitiesAlive < numberOfEntities)
+            LivingEntity entity;
+
+            if (_entitiesCache.Count > 0)
             {
-                var entity = LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10));
-                entity.onGoOffScreen += () => { _numberOfEntitiesAlive--; CreateLivingEntity(); };
-                _numberOfEntitiesAlive++;
+                entity = _entitiesCache[_entitiesCache.Count - 1];
+                _entitiesCache.RemoveAt(_entitiesCache.Count - 1);
+
+                entity.transform.position = getPosition();
+                entity.speed = Random.Range(1, 10);
+                entity.gameObject.SetActive(true);
+            } else
+            {
+                entity = LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10));
+                entity.onGoOffScreen += () => OnGoOffScreen(entity);
+                entity.transform.SetParent(_parent.transform, true);
             }
+
+            return entity;
+        }
+
+        void OnGoOffScreen(LivingEntity entity)
+        {
+            _numberOfEntitiesAlive--;
+            entity.gameObject.SetActive(false);
+            _entitiesCache.Add(entity);
+            CreateLivingEntity();
         }
     }
 

@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
-  numberOfEntities: 1000
+  numberOfEntities: 2000
   _numberOfEntitiesAlive: 0
 --- !u!114 &676004605
 MonoBehaviour:

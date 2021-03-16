@@ -23,17 +23,20 @@ namespace GP4
 
         CircleCollider2D _circleCollider;
 
+        Rigidbody2D _rigidbody;
+
         public System.Action onGoOffScreen;
         
         void Awake()
         {
             _circleCollider = GetComponent<CircleCollider2D>();
-            transform.rotation = Quaternion.AngleAxis(Random.Range(0, 360), Vector3.forward);
+            _rigidbody = GetComponent<Rigidbody2D>();
+            transform.rotation = Quaternion.AngleAxis(Random.Range(0, 360f), Vector3.forward);
         }
 
         void FixedUpdate()
         {
-            transform.Translate(Vector3.up * speed * Time.deltaTime);
+            _rigidbody.position += ((Vector2) _rigidbody.transform.up) * speed * Time.deltaTime;
         }
 
         void LateUpdate()
@@ -41,8 +44,6 @@ namespace GP4
             if (!(Physics2DUtils.Within(GameScene.Instance.SceneBounds, _circleCollider.bounds)))
             {
                 onGoOffScreen?.Invoke();
-                onGoOffScreen = null;
-                Destroy(gameObject);
             }
         }
 
