@@ -132,7 +132,7 @@ namespace GP4
 
                 var size = _labelStyle.CalcSize(new GUIContent(name));
                 var margin = 32 * UICoeff;
-                var frameRect = new Rect(tRect.x - margin, tRect.y + size.y + margin / 2, size.x + margin * 2, size.y + margin * 2);
+                var frameRect = new Rect(tRect.x - margin, tRect.y + (marginVertical - size.y) - margin, size.x + margin * 2, size.y + margin * 2);
 
                 GUI.Box(frameRect, _texture, _frameStyle);
 

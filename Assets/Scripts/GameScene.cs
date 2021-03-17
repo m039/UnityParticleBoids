@@ -43,6 +43,10 @@ namespace GP4
 
         readonly List<BaseSpawner> _spawners = new List<BaseSpawner>();
 
+        ComboBox _comboBox;
+
+        GUIStyle _comboBoxStyle;
+
         void OnValidate()
         {
             UpdateType();
@@ -57,6 +61,7 @@ namespace GP4
         {
             UpdateBounds(); // Updates the bounds only when needed.
         }
+
 
         bool IsTypeEquals(BaseSpawner spawner, SpawnerType type)
         {
@@ -138,7 +143,50 @@ namespace GP4
             _lastBounds = new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
         }
 
-        private void OnDrawGizmosSelected()
+        void OnGUI()
+        {
+            if (_comboBox == null)
+            {
+                var coeff = Screen.height / 1920f;
+
+                var comboBoxList = new GUIContent[2];
+                comboBoxList[0] = new GUIContent("Basic");
+                comboBoxList[1] = new GUIContent("Draw Mesh");
+
+                _comboBoxStyle = new GUIStyle();
+                _comboBoxStyle.fontSize = (int)(60f * coeff);
+                _comboBoxStyle.normal.textColor = Color.white;
+                _comboBoxStyle.onHover.background = _comboBoxStyle.hover.background = new Texture2D(2, 2);
+                _comboBoxStyle.padding.left = _comboBoxStyle.padding.right = _comboBoxStyle.padding.top = _comboBoxStyle.padding.bottom = 4;
+
+                int index = 0;
+
+                if (_type.HasValue && _type == SpawnerType.Basic) {
+                    index = 0;
+                } else if (_type.HasValue && _type == SpawnerType.DrawMesh) {
+                    index = 1;
+                }
+
+
+                _comboBox = new ComboBox(new Rect(Screen.width - 400 * coeff, Screen.height - 200 * coeff, 200 * coeff, 40 * coeff), comboBoxList[index], comboBoxList, _comboBoxStyle);
+            }
+
+            var result = _comboBox.Show();
+            if (result != -1)
+            {
+                if (result == 0)
+                {
+                    _SelectedType = SpawnerType.Basic;
+                } else if (result == 1)
+                {
+                    _SelectedType = SpawnerType.DrawMesh;
+                }
+
+                UpdateType();
+            }
+        }
+
+        void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.green;
             GizmosUtils.DrawRect(SceneBounds.ToRect());

@@ -52,6 +52,8 @@ namespace GP4
 
             if (_entitiesCache.Count > 0)
             {
+                // Take from the cache.
+
                 entity = _entitiesCache[_entitiesCache.Count - 1];
                 _entitiesCache.RemoveAt(_entitiesCache.Count - 1);
 
@@ -60,6 +62,8 @@ namespace GP4
                 entity.gameObject.SetActive(true);
             } else
             {
+                // Create a new one.
+
                 entity = LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10));
                 entity.onGoOffScreen += () => OnGoOffScreen(entity);
                 entity.transform.SetParent(_parent.transform, true);
