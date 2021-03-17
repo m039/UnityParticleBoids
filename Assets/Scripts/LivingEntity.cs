@@ -25,11 +25,41 @@ namespace GP4
 
         Rigidbody2D _rigidbody;
 
+        public GameObject BigTriangle
+        {
+            get
+            {
+                return transform.Find("Head").gameObject;
+            }
+        }
+
+        public GameObject SmallTriangle
+        {
+            get
+            {
+                return transform.Find("Head (1)").gameObject;
+            }
+        }
+
+        protected CircleCollider2D CircleCollider
+        {
+            get
+            {
+                if (_circleCollider == null)
+                {
+                    _circleCollider = GetComponent<CircleCollider2D>();
+                }
+
+                return _circleCollider;
+            }
+        }
+
+        public float Radius => CircleCollider.radius;
+
         public System.Action onGoOffScreen;
         
         void Awake()
         {
-            _circleCollider = GetComponent<CircleCollider2D>();
             _rigidbody = GetComponent<Rigidbody2D>();
             transform.rotation = Quaternion.AngleAxis(Random.Range(0, 360f), Vector3.forward);
         }
@@ -41,7 +71,7 @@ namespace GP4
 
         void LateUpdate()
         {
-            if (!(Physics2DUtils.Within(GameScene.Instance.SceneBounds, _circleCollider.bounds)))
+            if (!(Physics2DUtils.Within(GameScene.Instance.SceneBounds, CircleCollider.bounds)))
             {
                 onGoOffScreen?.Invoke();
             }

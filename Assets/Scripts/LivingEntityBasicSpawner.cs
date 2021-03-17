@@ -6,7 +6,7 @@ using m039.Common;
 namespace GP4
 {
 
-    public class LivingEntitySpawner : MonoBehaviour
+    public class LivingEntityBasicSpawner : MonoBehaviour
     {
         #region Inspector
 
@@ -20,8 +20,6 @@ namespace GP4
         [HideInInspector]
         [SerializeField]
         int _numberOfEntitiesAlive = 0;
-
-        bool _restart = false;
 
         GameObject _parent;
 
