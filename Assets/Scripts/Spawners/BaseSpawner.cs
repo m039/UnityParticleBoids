@@ -1,15 +1,12 @@
 using UnityEngine;
 
 using m039.Common;
+using static m039.Common.UIUtils;
 
 namespace GP4
 {
     public abstract class BaseSpawner : MonoBehaviour
     {
-        const float UIReferenceHeight = 1920f;
-
-        static float UICoeff => Screen.height / UIReferenceHeight;
-
         static IDrawer _sDrawer;
 
         public void SetSelected(bool selected)

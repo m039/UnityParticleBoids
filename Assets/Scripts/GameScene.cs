@@ -1,7 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 using m039.Common;
+using static m039.Common.UIUtils;
 
 namespace GP4
 {
@@ -10,8 +11,8 @@ namespace GP4
     {
         enum SpawnerType
         {
-            Basic,
-            DrawMesh
+            Basic = 0,
+            DrawMesh = 1
         }
 
         #region Inspector
@@ -44,8 +45,6 @@ namespace GP4
         readonly List<BaseSpawner> _spawners = new List<BaseSpawner>();
 
         ComboBox _comboBox;
-
-        GUIStyle _comboBoxStyle;
 
         void OnValidate()
         {
@@ -132,6 +131,13 @@ namespace GP4
                     }
                 }
             }
+
+            // Update comboBox
+
+            if (_comboBox != null)
+            {
+                _comboBox.SelectedItemIndex = (int)_type;
+            }
         }
 
         void UpdateBounds()
@@ -146,45 +152,58 @@ namespace GP4
         void OnGUI()
         {
             if (_comboBox == null)
-            {
-                var coeff = Screen.height / 1920f;
+            {              
+                var width = 400 * UICoeff + 32 * 2 * UICoeff;
+                var height = 100 * UICoeff + 32 * 2 * UICoeff;
+                var x = Screen.width - width - 100 * UICoeff + 32 * 1 * UICoeff;
+                var y = Screen.height - height - 100 * UICoeff + 32 * 1 * UICoeff;
+
+                var rect = new Rect(x, y, width, height);
 
                 var comboBoxList = new GUIContent[2];
                 comboBoxList[0] = new GUIContent("Basic");
                 comboBoxList[1] = new GUIContent("Draw Mesh");
 
-                _comboBoxStyle = new GUIStyle();
-                _comboBoxStyle.fontSize = (int)(60f * coeff);
-                _comboBoxStyle.normal.textColor = Color.white;
-                _comboBoxStyle.onHover.background = _comboBoxStyle.hover.background = new Texture2D(2, 2);
-                _comboBoxStyle.padding.left = _comboBoxStyle.padding.right = _comboBoxStyle.padding.top = _comboBoxStyle.padding.bottom = 4;
+                var buttonStyle = new GUIStyle("button");
+                buttonStyle.fontSize = (int)(60f * UICoeff);
 
-                int index = 0;
+                var boxStyle = new GUIStyle("box");
 
-                if (_type.HasValue && _type == SpawnerType.Basic) {
-                    index = 0;
-                } else if (_type.HasValue && _type == SpawnerType.DrawMesh) {
-                    index = 1;
-                }
+                var listStyle = new GUIStyle();
+                listStyle.fontSize = (int)(60f * UICoeff);
+                listStyle.normal.textColor = Color.white;
+                listStyle.onHover.background = listStyle.hover.background = new Texture2D(2, 2);
+                listStyle.padding.left = listStyle.padding.right = listStyle.padding.top = listStyle.padding.bottom = 4;
 
+                _comboBox = new ComboBox(
+                    rect,
+                    comboBoxList,
+                    buttonStyle,
+                    boxStyle,
+                    listStyle
+                    );
+                _comboBox.OnItemSelected += (i, userHasPressed) => {
+                    if (!userHasPressed) return;
 
-                _comboBox = new ComboBox(new Rect(Screen.width - 400 * coeff, Screen.height - 200 * coeff, 200 * coeff, 40 * coeff), comboBoxList[index], comboBoxList, _comboBoxStyle);
+                    if (i == 0)
+                    {
+                        _SelectedType = SpawnerType.Basic;
+                    }
+                    else if (i == 1)
+                    {
+                        _SelectedType = SpawnerType.DrawMesh;
+                    }
+
+                    UpdateType();
+                };
+                _comboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
+                _comboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
+
             }
 
-            var result = _comboBox.Show();
-            if (result != -1)
-            {
-                if (result == 0)
-                {
-                    _SelectedType = SpawnerType.Basic;
-                } else if (result == 1)
-                {
-                    _SelectedType = SpawnerType.DrawMesh;
-                }
-
-                UpdateType();
-            }
+            _comboBox.Show();
         }
+
 
         void OnDrawGizmosSelected()
         {
