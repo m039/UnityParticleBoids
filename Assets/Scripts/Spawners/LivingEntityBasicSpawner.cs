@@ -6,7 +6,7 @@ using m039.Common;
 namespace GP4
 {
 
-    public class LivingEntityBasicSpawner : MonoBehaviour
+    public class LivingEntityBasicSpawner : BaseSpawner
     {
         #region Inspector
 
@@ -17,18 +17,11 @@ namespace GP4
 
         #endregion
 
-        [HideInInspector]
-        [SerializeField]
         int _numberOfEntitiesAlive = 0;
 
         GameObject _parent;
 
         readonly List<LivingEntity> _entitiesCache = new List<LivingEntity>(4000);
-
-        private void Start()
-        {
-            CreateLivingEntity();
-        }
 
         void CreateLivingEntity()
         {
@@ -81,6 +74,31 @@ namespace GP4
             entity.gameObject.SetActive(false);
             _entitiesCache.Add(entity);
             CreateLivingEntity();
+        }
+
+        protected override void PerformOnGUI(IDrawer drawer)
+        {
+            base.PerformOnGUI(drawer);
+
+            drawer.DrawStatFrame(1);
+            drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
+
+            drawer.DrawName("GameObject, Transparent [Basic]");
+        }
+
+        public override void OnSpawnerSelected()
+        {
+            Invoke(nameof(CreateLivingEntity), 0.1f);
+        }
+
+        public override void OnSpawnerDeselected()
+        {
+            if (_parent != null)
+            {
+                Destroy(_parent);
+                _parent = null;
+                _numberOfEntitiesAlive = 0;
+            }
         }
     }
 

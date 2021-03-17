@@ -134,12 +134,12 @@ GameObject:
   - component: {fileID: 94613704}
   - component: {fileID: 94613705}
   m_Layer: 0
-  m_Name: BatchSpawner
+  m_Name: DrawMeshSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &94613704
 Transform:
   m_ObjectHideFlags: 0
@@ -168,10 +168,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
   _LivingEntityMaterial: {fileID: 2100000, guid: 8cfccb53098204644a3880e15d665c12, type: 2}
-  numberOfEntities: 4005
+  numberOfEntities: 7000
   entetiesReferenceSpeed: 0.64
   entetiesReferenceScale: 0.93
   entetiesReferenceAlpha: 0.7
+  useGizmos: 0
 --- !u!1 &676004603
 GameObject:
   m_ObjectHideFlags: 0
@@ -201,6 +202,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d491769096496447856fbc6c55b0a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _SelectedType: 0
+  _BasicSpawner: {fileID: 1605227173}
+  _DrawMeshSpawner: {fileID: 94613705}
 --- !u!4 &676004606
 Transform:
   m_ObjectHideFlags: 0
@@ -551,7 +555,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1605227172
 Transform:
   m_ObjectHideFlags: 0
@@ -579,5 +583,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
-  numberOfEntities: 2000
-  _numberOfEntitiesAlive: 0
+  numberOfEntities: 1800

@@ -3,7 +3,6 @@ Shader "Unlit/SimpleSprite"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Color("Tint", Color) = (1, 1, 1, 1)
     }
     SubShader
     {
@@ -46,16 +45,13 @@ Shader "Unlit/SimpleSprite"
                 float2 uv : TEXCOORD0;
                 float4 vertex : SV_POSITION;
                 fixed4 color : COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             UNITY_INSTANCING_BUFFER_START(Props)
-                UNITY_DEFINE_INSTANCED_PROP(fixed4, _Color)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _Color)
             UNITY_INSTANCING_BUFFER_END(Props)
 
             sampler2D _MainTex;
-
-            float4 _Color;
 
             vertOut vert(vertIn v)
             {
@@ -64,7 +60,11 @@ Shader "Unlit/SimpleSprite"
                 UNITY_SETUP_INSTANCE_ID(v);
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
+#ifdef UNITY_INSTANCING_ENABLED
                 o.color = v.color * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
+#else
+                o.color = v.color;
+#endif
                 o.uv = v.uv;
                 return o;
             }

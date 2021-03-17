@@ -8,7 +8,7 @@ using m039.Common;
 namespace GP4
 {
 
-    public class LivingEntityBatchSpawner : MonoBehaviour
+    public class LivingEntityDrawMeshSpawner : BaseSpawner
     {
         static readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
 
@@ -30,6 +30,8 @@ namespace GP4
 
         public float entetiesReferenceAlpha = 1f;
 
+        public bool useGizmos = true;
+
         #endregion
 
         readonly LinkedList<LivingEntityData> _enteties = new LinkedList<LivingEntityData>();
@@ -44,64 +46,24 @@ namespace GP4
 
         MaterialPropertyBlock _propertyBlock;
 
-        GUIStyle _labelStyle;
-
         static readonly int ColorId = Shader.PropertyToID("_Color");
 
-        void Awake()
+        void OnEnable()
         {
             InitRenderData();
-            CreateInstances();
         }
 
-        void OnGUI()
+        protected override void PerformOnGUI(IDrawer drawer)
         {
-            const float referenceHeight = 1920;
-            float coeff = Screen.height / referenceHeight;
+            base.PerformOnGUI(drawer);
 
-            var width = Screen.width;
-            var height = Screen.height;
-            var windowHeight = 200 * coeff;
-            var windowWidth = 600 * coeff;
-            var margin = 100 * coeff;
-            var rect = new Rect(width - windowWidth - margin, margin, windowWidth, windowHeight);
-            var offset = 4 * coeff;
+            drawer.DrawStatFrame(4);
+            drawer.DrawStat(0, "Entities: " + _enteties.Count);
+            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
+            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
+            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
-            if (_labelStyle == null)
-            {
-                _labelStyle = new GUIStyle(GUI.skin.label);
-                _labelStyle.fontSize = (int) (60 * coeff);
-                _labelStyle.alignment = TextAnchor.UpperLeft;
-                _labelStyle.normal.textColor = Color.white;
-            }
-
-            void drawText(int positionLine, string text)
-            {
-                var topOffset = _labelStyle.fontSize * positionLine + 50 * coeff * positionLine;
-
-                // Draw shadow
-
-                var tRect = new Rect(rect);
-                tRect.center += Vector2.one * offset + Vector2.up * topOffset;
-
-                _labelStyle.normal.textColor = Color.black;
-
-                GUI.Label(tRect, text, _labelStyle);
-
-                // Draw text
-
-                _labelStyle.normal.textColor = Color.white;
-
-                tRect = new Rect(rect);
-                tRect.center += Vector2.up * topOffset;
-
-                GUI.Label(tRect, text, _labelStyle);
-            }
-
-            drawText(0, "Entities: " + _enteties.Count);
-            drawText(1, "Global Scale: " + entetiesReferenceScale);
-            drawText(2, "Global Alpha: " + entetiesReferenceAlpha);
-            drawText(3, "Global Speed: " + entetiesReferenceSpeed);
+            drawer.DrawName("Graphics.DrawMesh, Transparent [DrawMesh]");
         }
 
         void InitRenderData()
@@ -127,7 +89,7 @@ namespace GP4
 
         void Update()
         {
-            DrawEntetiesBatched();
+            DrawEnteties();
         }
 
         void FixedUpdate()
@@ -177,47 +139,13 @@ namespace GP4
                 node = next;
             }
         }
-
-        const int BufferSize = 1023;
-
-        readonly Matrix4x4[] _bufferedDataCache = new Matrix4x4[BufferSize];
-
-        const bool UseBatch = false;
-
-        void DrawEntetiesBatched()
+      
+        void DrawEnteties()
         {
-            if (!UseBatch)
+            foreach (var data in _enteties)
             {
-                foreach (var data in _enteties)
-                {
-                    _propertyBlock.SetColor(ColorId, data.Color);
-                    Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
-                }
-            }
-            else
-            {
-                if (_enteties.Count <= 0)
-                    return;
-
-                _propertyBlock.SetColor(ColorId, new Color(1, 1, 1, 1));
-                var i = 0;
-
-                foreach (var data in _enteties)
-                {
-                    _bufferedDataCache[i++] = data.Matrix;
-
-                    if (i >= BufferSize)
-                    {
-                        Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache, BufferSize);
-
-                        i = 0;
-                    }
-                }
-
-                if (i != 0)
-                {
-                    Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache, i);
-                }
+                _propertyBlock.SetColor(ColorId, data.Color);
+                Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
             }
         }
 
@@ -231,6 +159,9 @@ namespace GP4
 
         void OnDrawGizmosSelected()
         {
+            if (!useGizmos)
+                return;
+
             foreach (var data in _enteties)
             {
                 var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
@@ -277,6 +208,16 @@ namespace GP4
             entityData.alpha = 0f;
 
             _enteties.AddLast(entityData);
+        }
+
+        public override void OnSpawnerSelected()
+        {
+            CreateInstances();
+        }
+
+        public override void OnSpawnerDeselected()
+        {
+            _enteties.Clear();
         }
 
         public class LivingEntityData
