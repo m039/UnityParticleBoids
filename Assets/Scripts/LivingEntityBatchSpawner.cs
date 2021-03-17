@@ -10,6 +10,8 @@ namespace GP4
 
     public class LivingEntityBatchSpawner : MonoBehaviour
     {
+        static readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
+
         #region Inspector
 
         [SerializeField]
@@ -20,7 +22,9 @@ namespace GP4
 
         public int numberOfEntities = 10;
 
-        public float entetiesSpeed = 5f;
+        public float entetiesReferenceSpeed = 5f;
+
+        public float entetiesReferenceScale = 0.5f;
 
         #endregion
 
@@ -69,6 +73,10 @@ namespace GP4
         void FixedUpdate()
         {
             UpdateEnteties();
+        }
+
+        void LateUpdate()
+        {
             CreateInstances();
         }
 
@@ -77,11 +85,14 @@ namespace GP4
             bool updateEntity(LivingEntityData data)
             {
                 var rotation = Quaternion.AngleAxis(data.rotation, Vector3.forward);
-                var deltaPosition = (Vector2)(rotation * Vector3.up * (data.speed * entetiesSpeed) * Time.deltaTime);
+                var deltaPosition = (Vector2)(rotation * Vector3.up * (data.speed * entetiesReferenceSpeed) * Time.deltaTime);
 
                 data.position += deltaPosition;
+                data.scaleFactor = entetiesReferenceScale;
+
+                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
                 
-                return Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, _entityRadius);
+                return Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius);
             }
 
             var node = _enteties.First;
@@ -103,60 +114,36 @@ namespace GP4
 
         const int BufferSize = 1023;
 
-        readonly List<Matrix4x4[]> _bufferedDataCache = new List<Matrix4x4[]>();
+        readonly Matrix4x4[] _bufferedDataCache = new Matrix4x4[BufferSize];
 
         void DrawEntetiesBatched()
         {
-            Matrix4x4[] getBufferedDataCache()
-            {
-                if (_bufferedDataCache.Count <= 0)
-                {
-                    return new Matrix4x4[BufferSize];
-                } else
-                {
-                    var cache = _bufferedDataCache[_bufferedDataCache.Count - 1];
-                    _bufferedDataCache.RemoveAt(_bufferedDataCache.Count - 1);
-                    cache.Fill(default);
-                    return cache;
-                }
-            }
-
-            void saveBufferedDataToCache()
-            {
-                _bufferedDataCache.AddRange(_bufferedData);
-            }
 
             if (_enteties.Count <= 0)
                 return;
 
             _bufferedData.Clear();
 
-            var tBuffer = getBufferedDataCache();
+            _bufferedDataCache.Fill(default);
             var i = 0;
 
             foreach (var node in _enteties)
             {
-                tBuffer[i++] = node.Matrix;
+                _bufferedDataCache[i++] = node.Matrix;
 
                 if (i >= BufferSize)
                 {
-                    _bufferedData.Add(tBuffer);
-                    tBuffer = getBufferedDataCache();
+                    Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache);
+
+                    _bufferedDataCache.Fill(default);
                     i = 0;
                 }
             }
 
             if (i != 0)
             {
-                _bufferedData.Add(tBuffer);
+                Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache);
             }
-
-            foreach (var batch in _bufferedData)
-            {
-                Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, batch);
-            }
-
-            saveBufferedDataToCache();
         }
 
         void CreateInstances()
@@ -169,9 +156,11 @@ namespace GP4
 
         void OnDrawGizmosSelected()
         {
-            foreach (var e in _enteties)
+            foreach (var data in _enteties)
             {
-                if (Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, e.position, _entityRadius))
+                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
+
+                if (Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius))
                 {
                     Gizmos.color = Color.blue.WithAlpha(0.5f);
                 } else
@@ -179,7 +168,7 @@ namespace GP4
                     Gizmos.color = Color.yellow.WithAlpha(0.5f);
                 }
 
-                Gizmos.DrawWireSphere(e.position, _entityRadius);
+                Gizmos.DrawWireSphere(data.position, boundRadius);
             }
         }
 
@@ -207,7 +196,7 @@ namespace GP4
 
             entityData.position = getPosition();
             entityData.rotation = Random.Range(0, 360f);
-            entityData.scale = Vector2.one * 0.5f;
+            entityData.scale = Vector2.one;
             entityData.speed = Random.Range(0.1f, 1f);
 
             _enteties.AddLast(entityData);
@@ -221,11 +210,13 @@ namespace GP4
 
             public Vector2 scale;
 
+            public float scaleFactor = 1f;
+
             public float speed;
 
             public Matrix4x4 Matrix {
                 get {
-                    return Matrix4x4.TRS(position, Quaternion.AngleAxis(rotation, Vector3.forward), scale);
+                    return Matrix4x4.TRS(position, Quaternion.AngleAxis(rotation, Vector3.forward), scale * scaleFactor);
                 }
              }
         }

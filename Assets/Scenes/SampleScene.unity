@@ -168,8 +168,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
   _LivingEntityMaterial: {fileID: 2100000, guid: 8cfccb53098204644a3880e15d665c12, type: 2}
-  numberOfEntities: 6000
-  entetiesSpeed: 5
+  numberOfEntities: 100
+  entetiesReferenceSpeed: 5
+  entetiesReferenceScale: 1
 --- !u!1 &676004603
 GameObject:
   m_ObjectHideFlags: 0
