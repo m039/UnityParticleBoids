@@ -12,6 +12,8 @@ namespace GP4
     {
         static readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
 
+        const float AlphaFadeOutSpeed = 0.56f;
+
         #region Inspector
 
         [SerializeField]
@@ -26,13 +28,13 @@ namespace GP4
 
         public float entetiesReferenceScale = 0.5f;
 
+        public float entetiesReferenceAlpha = 1f;
+
         #endregion
 
         readonly LinkedList<LivingEntityData> _enteties = new LinkedList<LivingEntityData>();
 
         readonly List<LivingEntityData> _entetiesCache = new List<LivingEntityData>(1024);
-
-        readonly List<Matrix4x4[]> _bufferedData = new List<Matrix4x4[]>();
 
         Mesh _bigTrianlgeMesh;
 
@@ -40,10 +42,66 @@ namespace GP4
 
         float _entityRadius;
 
+        MaterialPropertyBlock _propertyBlock;
+
+        GUIStyle _labelStyle;
+
+        static readonly int ColorId = Shader.PropertyToID("_Color");
+
         void Awake()
         {
             InitRenderData();
             CreateInstances();
+        }
+
+        void OnGUI()
+        {
+            const float referenceHeight = 1920;
+            float coeff = Screen.height / referenceHeight;
+
+            var width = Screen.width;
+            var height = Screen.height;
+            var windowHeight = 200 * coeff;
+            var windowWidth = 600 * coeff;
+            var margin = 100 * coeff;
+            var rect = new Rect(width - windowWidth - margin, margin, windowWidth, windowHeight);
+            var offset = 4 * coeff;
+
+            if (_labelStyle == null)
+            {
+                _labelStyle = new GUIStyle(GUI.skin.label);
+                _labelStyle.fontSize = (int) (60 * coeff);
+                _labelStyle.alignment = TextAnchor.UpperLeft;
+                _labelStyle.normal.textColor = Color.white;
+            }
+
+            void drawText(int positionLine, string text)
+            {
+                var topOffset = _labelStyle.fontSize * positionLine + 50 * coeff * positionLine;
+
+                // Draw shadow
+
+                var tRect = new Rect(rect);
+                tRect.center += Vector2.one * offset + Vector2.up * topOffset;
+
+                _labelStyle.normal.textColor = Color.black;
+
+                GUI.Label(tRect, text, _labelStyle);
+
+                // Draw text
+
+                _labelStyle.normal.textColor = Color.white;
+
+                tRect = new Rect(rect);
+                tRect.center += Vector2.up * topOffset;
+
+                GUI.Label(tRect, text, _labelStyle);
+            }
+
+            drawText(0, "Entities: " + _enteties.Count);
+            drawText(1, "Global Scale: " + entetiesReferenceScale);
+            drawText(2, "Global Alpha: " + entetiesReferenceAlpha);
+            drawText(3, "Global Speed: " + entetiesReferenceSpeed);
         }
 
         void InitRenderData()
@@ -63,6 +121,8 @@ namespace GP4
             _bigTriangleMaterial.color = spriteRenderer.color;
 
             _entityRadius = _LivingEntityPrefab.Radius;
+
+            _propertyBlock = new MaterialPropertyBlock();
         }
 
         void Update()
@@ -89,6 +149,12 @@ namespace GP4
 
                 data.position += deltaPosition;
                 data.scaleFactor = entetiesReferenceScale;
+                data.alphaFactor = entetiesReferenceAlpha;
+
+                if (data.alpha < 1)
+                {
+                    data.alpha = Mathf.Clamp(data.alpha + Time.deltaTime * AlphaFadeOutSpeed, 0, 1);
+                }
 
                 var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
                 
@@ -116,33 +182,42 @@ namespace GP4
 
         readonly Matrix4x4[] _bufferedDataCache = new Matrix4x4[BufferSize];
 
+        const bool UseBatch = false;
+
         void DrawEntetiesBatched()
         {
-
-            if (_enteties.Count <= 0)
-                return;
-
-            _bufferedData.Clear();
-
-            _bufferedDataCache.Fill(default);
-            var i = 0;
-
-            foreach (var node in _enteties)
+            if (!UseBatch)
             {
-                _bufferedDataCache[i++] = node.Matrix;
-
-                if (i >= BufferSize)
+                foreach (var data in _enteties)
                 {
-                    Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache);
-
-                    _bufferedDataCache.Fill(default);
-                    i = 0;
+                    _propertyBlock.SetColor(ColorId, data.Color);
+                    Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
                 }
             }
-
-            if (i != 0)
+            else
             {
-                Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache);
+                if (_enteties.Count <= 0)
+                    return;
+
+                _propertyBlock.SetColor(ColorId, new Color(1, 1, 1, 1));
+                var i = 0;
+
+                foreach (var data in _enteties)
+                {
+                    _bufferedDataCache[i++] = data.Matrix;
+
+                    if (i >= BufferSize)
+                    {
+                        Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache, BufferSize);
+
+                        i = 0;
+                    }
+                }
+
+                if (i != 0)
+                {
+                    Graphics.DrawMeshInstanced(_bigTrianlgeMesh, 0, _bigTriangleMaterial, _bufferedDataCache, i);
+                }
             }
         }
 
@@ -162,10 +237,10 @@ namespace GP4
 
                 if (Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius))
                 {
-                    Gizmos.color = Color.blue.WithAlpha(0.5f);
+                    Gizmos.color = Color.blue.WithAlpha(0.5f * data.alpha);
                 } else
                 {
-                    Gizmos.color = Color.yellow.WithAlpha(0.5f);
+                    Gizmos.color = Color.yellow.WithAlpha(0.5f * data.alpha);
                 }
 
                 Gizmos.DrawWireSphere(data.position, boundRadius);
@@ -198,6 +273,8 @@ namespace GP4
             entityData.rotation = Random.Range(0, 360f);
             entityData.scale = Vector2.one;
             entityData.speed = Random.Range(0.1f, 1f);
+            entityData.baseColor = _LivingEntityPrefab.BigTriangle.GetComponent<SpriteRenderer>().color;
+            entityData.alpha = 0f;
 
             _enteties.AddLast(entityData);
         }
@@ -213,6 +290,20 @@ namespace GP4
             public float scaleFactor = 1f;
 
             public float speed;
+
+            public Color baseColor;
+
+            public float alpha;
+
+            public float alphaFactor = 1f;
+
+            public Color Color
+            {
+                get
+                {
+                    return new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * alpha * alphaFactor);
+                }
+            }
 
             public Matrix4x4 Matrix {
                 get {
