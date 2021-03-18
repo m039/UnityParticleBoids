@@ -5,14 +5,29 @@ using static m039.Common.UIUtils;
 
 namespace GP4
 {
+    public interface ISpawnerContext
+    {
+        BaseLivingEntityData LivingEntityData { get; }
+
+        event System.Action OnLivingEntityDataChanged;
+
+        bool GUIVisibility { get; }
+    }
+
     public abstract class BaseSpawner : MonoBehaviour
     {
         static IDrawer _sDrawer;
+
+        public bool IsSelected { get; private set; } = false;
+
+        protected ISpawnerContext Context { get; private set; }
 
         public void SetSelected(bool selected)
         {
             if (!Application.isPlaying)
                 return;
+
+            IsSelected = selected;
 
             if (selected)
             {
@@ -23,9 +38,26 @@ namespace GP4
             }
         }
 
+        protected virtual void OnEnable()
+        {
+            Context = GameScene.Instance;
+            Context.OnLivingEntityDataChanged += OnLivingEntityDataChanged;
+        }
+
+        private void OnDisable()
+        {
+            Context.OnLivingEntityDataChanged -= OnLivingEntityDataChanged;
+            Context = null;    
+        }
+
         public abstract void OnSpawnerSelected();
 
         public abstract void OnSpawnerDeselected();
+
+        protected virtual void OnLivingEntityDataChanged()
+        {
+
+        }
 
         protected interface IDrawer
         {
@@ -157,7 +189,10 @@ namespace GP4
                 _sDrawer = new Drawer();
             }
 
-            PerformOnGUI(_sDrawer);
+            if (Context.GUIVisibility)
+            {
+                PerformOnGUI(_sDrawer);
+            }
         }
 
         protected virtual void PerformOnGUI(IDrawer drawer)

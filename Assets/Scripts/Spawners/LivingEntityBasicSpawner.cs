@@ -80,19 +80,9 @@ namespace GP4
             CreateLivingEntity();
         }
 
-        protected override void PerformOnGUI(IDrawer drawer)
-        {
-            base.PerformOnGUI(drawer);
-
-            drawer.DrawStatFrame(1);
-            drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
-
-            drawer.DrawName("GameObject, Transparent [Basic]");
-        }
-
         public override void OnSpawnerSelected()
         {
-            Invoke(nameof(CreateLivingEntity), 0.1f);
+            Invoke(nameof(CreateLivingEntity), 0.01f);
         }
 
         public override void OnSpawnerDeselected()
@@ -103,6 +93,16 @@ namespace GP4
                 _parent = null;
                 _numberOfEntitiesAlive = 0;
             }
+        }
+
+        protected override void PerformOnGUI(IDrawer drawer)
+        {
+            base.PerformOnGUI(drawer);
+
+            drawer.DrawStatFrame(1);
+            drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
+
+            drawer.DrawName("GameObject, Transparent [Basic]");
         }
     }
 

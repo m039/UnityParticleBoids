@@ -7,7 +7,7 @@ using static m039.Common.UIUtils;
 namespace GP4
 {
 
-    public class GameScene : SingletonMonoBehaviour<GameScene>
+    public class GameScene : SingletonMonoBehaviour<GameScene>, ISpawnerContext
     {
         enum SpawnerType
         {
@@ -26,6 +26,12 @@ namespace GP4
         [SerializeField]
         BaseSpawner _DrawMeshSpawner;
 
+        [SerializeField]
+        BaseLivingEntityData _LivingEntityData;
+
+        [SerializeField]
+        bool _GUIVisibility = true;
+
         #endregion
 
         public Bounds SceneBounds {
@@ -38,6 +44,12 @@ namespace GP4
             }
         }
 
+        public BaseLivingEntityData LivingEntityData => _LivingEntityData;
+
+        public bool GUIVisibility => _GUIVisibility;
+
+        public event System.Action OnLivingEntityDataChanged;
+
         Bounds? _lastBounds;
 
         SpawnerType? _type;
@@ -46,9 +58,17 @@ namespace GP4
 
         ComboBox _comboBox;
 
+        BaseLivingEntityData _lastLivingEntityData;
+
+        private void Awake()
+        {
+            _lastLivingEntityData = _LivingEntityData;
+        }
+
         void OnValidate()
         {
             UpdateType();
+            UpdateLivingEntityData();
         }
 
         void Start()
@@ -60,7 +80,6 @@ namespace GP4
         {
             UpdateBounds(); // Updates the bounds only when needed.
         }
-
 
         bool IsTypeEquals(BaseSpawner spawner, SpawnerType type)
         {
@@ -85,7 +104,10 @@ namespace GP4
                 _spawners.Add(_BasicSpawner);
                 _spawners.Add(_DrawMeshSpawner);
 
-                _spawners.ForEach((s) => s.gameObject.SetActive(false));
+                _spawners.ForEach((s) =>
+                {
+                    s.gameObject.SetActive(false);
+                });
 
                 _type = _SelectedType;
 
@@ -149,6 +171,15 @@ namespace GP4
             _lastBounds = new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
         }
 
+        void UpdateLivingEntityData()
+        {
+            if (_lastLivingEntityData != _LivingEntityData)
+            {
+                OnLivingEntityDataChanged?.Invoke();
+                _lastLivingEntityData = _LivingEntityData;
+            }
+        }
+
         void OnGUI()
         {
             if (_comboBox == null)
@@ -201,9 +232,11 @@ namespace GP4
 
             }
 
-            _comboBox.Show();
+            if (GUIVisibility)
+            {
+                _comboBox.Show();
+            }
         }
-
 
         void OnDrawGizmosSelected()
         {

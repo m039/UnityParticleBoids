@@ -9,7 +9,7 @@ namespace GP4
 {
 
     [CreateAssetMenu(menuName = Consts.MenuItemRoot + "/DebugConfig")]
-    public partial class DebugConfig : SingletonScriptableObject<DebugConfig>
+    public class DebugConfig : SingletonScriptableObject<DebugConfig>
     {
 
 #if UNITY_EDITOR

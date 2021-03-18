@@ -16,18 +16,13 @@ namespace GP4
 
         #region Inspector
 
-        [SerializeField]
-        LivingEntity _LivingEntityPrefab;
-
-        [SerializeField]
-        Material _LivingEntityMaterial;
-
         public int numberOfEntities = 10;
 
         public float entetiesReferenceSpeed = 5f;
 
         public float entetiesReferenceScale = 0.5f;
 
+        [Range(0, 1f)]
         public float entetiesReferenceAlpha = 1f;
 
         public bool useGizmos = true;
@@ -48,8 +43,10 @@ namespace GP4
 
         static readonly int ColorId = Shader.PropertyToID("_Color");
 
-        void OnEnable()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+
             InitRenderData();
         }
 
@@ -68,21 +65,21 @@ namespace GP4
 
         void InitRenderData()
         {
-            var spriteRenderer = _LivingEntityPrefab.BigTriangle.GetComponent<SpriteRenderer>();
-            var sprite = spriteRenderer.sprite;
+            var entityData = Context.LivingEntityData.GetData();
+            var sprite = entityData.sprite;
 
             _bigTrianlgeMesh = new Mesh();
             _bigTrianlgeMesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
             _bigTrianlgeMesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
             _bigTrianlgeMesh.uv = sprite.uv;
-            _bigTrianlgeMesh.colors = Enumerable.Repeat(Color.white, 4).ToArray();
+            _bigTrianlgeMesh.colors = Enumerable.Repeat(Color.white, _bigTrianlgeMesh.vertices.Length).ToArray();
 
-            _bigTriangleMaterial = new Material(_LivingEntityMaterial);
+            _bigTriangleMaterial = new Material(Shader.Find("Unlit/SimpleSprite"));
             _bigTriangleMaterial.enableInstancing = true;
             _bigTriangleMaterial.mainTexture = sprite.texture;
-            _bigTriangleMaterial.color = spriteRenderer.color;
+            _bigTriangleMaterial.color = Color.white;
 
-            _entityRadius = _LivingEntityPrefab.Radius;
+            _entityRadius = entityData.radius;
 
             _propertyBlock = new MaterialPropertyBlock();
         }
@@ -142,10 +139,16 @@ namespace GP4
       
         void DrawEnteties()
         {
-            foreach (var data in _enteties)
+            for (int i = 0; i < Context.LivingEntityData.NumberOfLayers; i++)
             {
-                _propertyBlock.SetColor(ColorId, data.Color);
-                Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
+                foreach (var data in _enteties)
+                {
+                    if (data.layer != i)
+                        continue;
+
+                    _propertyBlock.SetColor(ColorId, data.Color);
+                    Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
+                }
             }
         }
 
@@ -180,11 +183,11 @@ namespace GP4
 
         void SpawnLivingEntity()
         {
-            Vector3 getPosition()
+            Vector3 getPosition(Vector2 normalizedPosition)
             {
                 var center = GameScene.Instance.SceneBounds.center;
                 var size = GameScene.Instance.SceneBounds.size;
-                size = new Vector3(Random.Range(-0.5f, 0.5f) * size.x, Random.Range(-0.5f, 0.5f) * size.y);
+                size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
                 return center + size;
             }
 
@@ -200,11 +203,14 @@ namespace GP4
                 entityData = new LivingEntityData();
             }
 
-            entityData.position = getPosition();
-            entityData.rotation = Random.Range(0, 360f);
-            entityData.scale = Vector2.one;
-            entityData.speed = Random.Range(0.1f, 1f);
-            entityData.baseColor = _LivingEntityPrefab.BigTriangle.GetComponent<SpriteRenderer>().color;
+            var livingEntityData = Context.LivingEntityData.GetData();
+
+            entityData.position = getPosition(livingEntityData.position);
+            entityData.rotation = livingEntityData.rotation;
+            entityData.scale = livingEntityData.scale;
+            entityData.speed = livingEntityData.speed;
+            entityData.baseColor = livingEntityData.color;
+            entityData.layer = livingEntityData.layer;
             entityData.alpha = 0f;
 
             _enteties.AddLast(entityData);
@@ -218,6 +224,13 @@ namespace GP4
         public override void OnSpawnerDeselected()
         {
             _enteties.Clear();
+        }
+
+        protected override void OnLivingEntityDataChanged()
+        {
+            base.OnLivingEntityDataChanged();
+
+            InitRenderData();
         }
 
         public class LivingEntityData
@@ -237,6 +250,8 @@ namespace GP4
             public float alpha;
 
             public float alphaFactor = 1f;
+
+            public int layer;
 
             public Color Color
             {
