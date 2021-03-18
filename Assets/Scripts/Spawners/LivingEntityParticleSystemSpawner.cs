@@ -12,8 +12,6 @@ namespace GP4
 
         #region Inspector
 
-        public bool useBurstCompiler = false;
-
         public int numberOfEntities = 10;
 
         public float entetiesReferenceSpeed = 5f;
@@ -250,7 +248,7 @@ namespace GP4
             drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
             drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
-            drawer.DrawName("ParticleSystem, " + (useBurstCompiler? "With" : "Without") + " Burst [ParticleSystem]");
+            drawer.DrawName("ParticleSystem");
 
             drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
