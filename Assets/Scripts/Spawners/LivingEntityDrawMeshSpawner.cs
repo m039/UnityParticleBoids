@@ -233,6 +233,8 @@ namespace GP4
             drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
             drawer.DrawName("Graphics.DrawMesh, Transparent [DrawMesh]");
+
+            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
 
         public class LivingEntityData

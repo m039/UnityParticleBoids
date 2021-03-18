@@ -16,7 +16,7 @@ namespace GP4
 
     public abstract class BaseSpawner : MonoBehaviour
     {
-        static IDrawer _sDrawer;
+        IDrawer _drawer;
 
         public bool IsSelected { get; private set; } = false;
 
@@ -66,6 +66,8 @@ namespace GP4
             void DrawStatFrame(int numberOfStats);
 
             void DrawName(string name);
+
+            void DrawGetNumber(string label, ref int number);
         }
 
         class Drawer : IDrawer
@@ -73,6 +75,8 @@ namespace GP4
             GUIStyle _labelStyle;
 
             GUIStyle _frameStyle;
+
+            GUIStyle _textStyle;
 
             Rect _statRect;
 
@@ -98,6 +102,8 @@ namespace GP4
 
                 _frameStyle = new GUIStyle();
                 _frameStyle.normal.background = _texture;
+
+                _textStyle = new GUIStyle(GUI.skin.textField);
 
                 var windowHeight = 200 * UICoeff;
                 var windowWidth = 800 * UICoeff;
@@ -180,18 +186,90 @@ namespace GP4
 
                 GUI.Label(tRect, name, _labelStyle);
             }
+
+            string _numberText;
+
+            public void DrawGetNumber(string label, ref int number)
+            {
+                var topOffset = 800 * UICoeff;
+                var margin = 32 * UICoeff;
+                var padding = 16 * UICoeff;
+                var labelSize = _labelStyle.CalcSize(new GUIContent(label));
+
+                /// Draw Frame
+
+                var tRect = new Rect(_statRect);
+
+                tRect.center += Vector2.up * topOffset - Vector2.one * margin;
+                tRect.size = new Vector2(
+                    margin * 2 + _statRect.width,
+                    margin * 3 + padding * 2 + labelSize.y * 2
+                    );
+
+                GUI.Box(tRect, _texture, _frameStyle);
+
+                /// Label
+
+                _labelStyle.fontSize = (int)(60 * UICoeff);
+                _labelStyle.alignment = TextAnchor.UpperLeft;
+                _labelStyle.font = _statFont;
+
+                // Draw shadow
+
+                tRect = new Rect(_statRect);
+
+                tRect.y += topOffset;
+                tRect.center += Vector2.one * _offset;
+
+                _labelStyle.normal.textColor = Color.black;
+
+                GUI.Label(tRect, label, _labelStyle);
+
+                // Draw text
+
+                _labelStyle.normal.textColor = Color.white;
+
+                tRect = new Rect(_statRect);
+                tRect.y += topOffset;
+
+                GUI.Label(tRect, label, _labelStyle);
+
+                /// Draw textField
+
+                tRect = new Rect(_statRect);
+
+                tRect.y += topOffset + labelSize.y + margin;
+                tRect.height = labelSize.y + padding * 2;
+
+                if (_numberText == null) {
+                    _numberText = number.ToString();
+                }
+
+                _textStyle.fontSize = (int)(60 * UICoeff);
+                _textStyle.alignment = TextAnchor.MiddleLeft;
+                _textStyle.font = _statFont;
+                _textStyle.padding.left = _textStyle.padding.right = _textStyle.padding.top = _textStyle.padding.bottom = (int) padding;
+
+                var text = GUI.TextField(tRect, _numberText, 10, _textStyle);
+
+                if (int.TryParse(text, out int result))
+                {
+                    number = result;
+                    _numberText = text;
+                }
+            }
         }
 
         void OnGUI()
         {
-            if (_sDrawer == null)
+            if (_drawer == null)
             {
-                _sDrawer = new Drawer();
+                _drawer = new Drawer();
             }
 
             if (Context.GUIVisibility)
             {
-                PerformOnGUI(_sDrawer);
+                PerformOnGUI(_drawer);
             }
         }
 

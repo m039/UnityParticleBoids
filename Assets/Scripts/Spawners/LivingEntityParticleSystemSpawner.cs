@@ -52,6 +52,7 @@ namespace GP4
 
         void LateUpdate()
         {
+            UpdateParameters();
             KeepParticlesToMax();
             UpdateParticles();
         }
@@ -250,6 +251,8 @@ namespace GP4
             drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
             drawer.DrawName("ParticleSystem, " + (useBurstCompiler? "With" : "Without") + " Burst [ParticleSystem]");
+
+            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
     }
 

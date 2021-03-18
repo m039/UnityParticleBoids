@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &94613704
 Transform:
   m_ObjectHideFlags: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d491769096496447856fbc6c55b0a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SelectedType: 2
+  _SelectedType: 1
   _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
@@ -556,7 +556,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1489204033
 Transform:
   m_ObjectHideFlags: 0
@@ -584,9 +584,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useBurstCompiler: 0
-  numberOfEntities: 15000
-  entetiesReferenceSpeed: 2.06
-  entetiesReferenceScale: 1.11
+  numberOfEntities: 30000
+  entetiesReferenceSpeed: 0.96
+  entetiesReferenceScale: 0.17
   entetiesReferenceAlpha: 0.822
   useGizmos: 0
 --- !u!199 &1489204035
@@ -1223,7 +1223,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 40000
+    maxNumParticles: 30000
     size3D: 1
     rotation3D: 0
     gravityModifier:
@@ -2641,7 +2641,7 @@ ParticleSystem:
     speedModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 2.06
+      scalar: 0.96
       minScalar: 1
       maxCurve:
         serializedVersion: 2
