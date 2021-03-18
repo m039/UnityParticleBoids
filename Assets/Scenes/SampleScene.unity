@@ -170,7 +170,7 @@ MonoBehaviour:
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
   entetiesReferenceAlpha: 0.822
-  useGizmos: 1
+  useGizmos: 0
 --- !u!1 &676004603
 GameObject:
   m_ObjectHideFlags: 0
@@ -588,7 +588,7 @@ MonoBehaviour:
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
   entetiesReferenceAlpha: 0.822
-  useGizmos: 1
+  useGizmos: 0
 --- !u!199 &1489204035
 ParticleSystemRenderer:
   serializedVersion: 6
@@ -1223,7 +1223,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 15000
+    maxNumParticles: 40000
     size3D: 1
     rotation3D: 0
     gravityModifier:
@@ -1483,7 +1483,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
   EmissionModule:
-    enabled: 1
+    enabled: 0
     serializedVersion: 4
     rateOverTime:
       serializedVersion: 2

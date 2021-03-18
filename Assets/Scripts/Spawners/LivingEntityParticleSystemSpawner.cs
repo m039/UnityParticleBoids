@@ -35,8 +35,6 @@ namespace GP4
 
         ParticleSystem.Particle[] _psParticles;
 
-        float _entityRadius;
-
         void Awake()
         {
             UpdateParameters();
@@ -54,6 +52,7 @@ namespace GP4
 
         void LateUpdate()
         {
+            KeepParticlesToMax();
             UpdateParticles();
         }
 
@@ -69,10 +68,9 @@ namespace GP4
                 if (_psCustomData[i].x == 0.0f)
                 {
                     InitParticle(i);
-                } else
-                {
-                    UpdateParticle(i);
                 }
+
+                UpdateParticle(i);
             }
 
             _particleSystem.SetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
@@ -96,7 +94,7 @@ namespace GP4
             particle.rotation = initData.rotation;
             particle.startColor = initData.color;
             particle.velocity = Quaternion.AngleAxis(initData.rotation, Vector3.forward) * Vector3.up * initData.speed;
-            particle.startLifetime = particle.remainingLifetime = 1000000f;
+            particle.startLifetime = particle.remainingLifetime = 1000f;
             particle.startSize3D = initData.scale * entetiesReferenceScale;
             particle.position = getPosition(initData.position).WithZ(-initData.layer);
 
@@ -158,9 +156,22 @@ namespace GP4
                 _particleSystemRenderer = GetComponent<ParticleSystemRenderer>();
             }
 
-            if (_psParticles == null || _psParticles.Length < _particleSystem.main.maxParticles)
+            if (_psParticles == null || _psParticles.Length != _particleSystem.main.maxParticles)
             {
                 _psParticles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
+                _particleSystem.Clear();
+            }
+        }
+
+        void KeepParticlesToMax()
+        {
+            if (_particleSystem.particleCount < numberOfEntities)
+            {
+                var p = new ParticleSystem.EmitParams()
+                {
+                    startLifetime = 0.01f
+                };
+                _particleSystem.Emit(p, numberOfEntities - _particleSystem.particleCount);
             }
         }
 
@@ -226,8 +237,6 @@ namespace GP4
             _particleSystemRenderer.enableGPUInstancing = true;
             _particleSystemRenderer.material = material;
             _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
-
-            _entityRadius = entityData.radius;
         }
 
         protected override void PerformOnGUI(IDrawer drawer)
