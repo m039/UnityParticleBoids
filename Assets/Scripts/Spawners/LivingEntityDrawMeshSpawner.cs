@@ -12,7 +12,7 @@ namespace GP4
     {
         static public readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
 
-        const float AlphaFadeOutSpeed = 0.56f;
+        public const float AlphaFadeOutSpeed = 0.56f;
 
         #region Inspector
 

@@ -20,6 +20,9 @@ namespace GP4
 
         public float entetiesReferenceScale = 0.5f;
 
+        [Range(0, 1f)]
+        public float entetiesReferenceAlpha = 1f;
+
         public bool useGizmos = true;
 
         #endregion
@@ -101,12 +104,27 @@ namespace GP4
 
             var boundRadius = particle.startSize / LivingEntityDrawMeshSpawner.ReferenceScaleMagnitude * radius;
 
+            // Update the particle data.
+
             if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, boundRadius))
             {
                 particle.remainingLifetime = 0f;
 
                 _psParticles[particleIndex] = particle;
             }
+
+            // Update the custom data.
+            var custom = _psCustomData[particleIndex];
+            var alpha = custom[2];
+
+            if (alpha < 1)
+            {
+                custom[2] = alpha = Mathf.Clamp(alpha + Time.deltaTime * LivingEntityDrawMeshSpawner.AlphaFadeOutSpeed, 0, 1);
+            }
+
+            custom[3] = alpha * entetiesReferenceAlpha;
+
+            _psCustomData[particleIndex] = custom;
         }
 
         void UpdateParameters()
@@ -142,6 +160,8 @@ namespace GP4
 
         private void OnDrawGizmosSelected()
         {
+            InitIfNeeded();
+
             Gizmos.color = Color.blue;
 
             var count = _particleSystem.GetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
@@ -199,10 +219,11 @@ namespace GP4
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawStatFrame(3);
+            drawer.DrawStatFrame(4);
             drawer.DrawStat(0, "Entities: " + _particleSystem.particleCount);
             drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
-            drawer.DrawStat(2, "Global Speed: " + entetiesReferenceSpeed);
+            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
+            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
             drawer.DrawName("ParticleSystem, " + (useBurstCompiler? "With" : "Without") + " Burst [ParticleSystem]");
         }

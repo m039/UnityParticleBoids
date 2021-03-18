@@ -22,6 +22,8 @@ Shader "Unlit/SimpleSprite"
         Pass
         {
             CGPROGRAM
+// Upgrade NOTE: excluded shader from OpenGL ES 2.0 because it uses non-square matrices
+#pragma exclude_renderers gles
 
             #pragma vertex vert
             #pragma fragment frag
@@ -32,15 +34,15 @@ Shader "Unlit/SimpleSprite"
 
             #pragma instancing_options procedural:vertInstancingSetup
 
-            //#define UNITY_PARTICLE_INSTANCE_DATA MyParticleInstanceData
-            //#define UNITY_PARTICLE_INSTANCE_DATA_NO_ANIM_FRAME
+            #define UNITY_PARTICLE_INSTANCE_DATA SimpleParticleInstanceData
+            #define UNITY_PARTICLE_INSTANCE_DATA_NO_ANIM_FRAME
 
-            //struct MyParticleInstanceData
-            //{
-            //    float3x4 transform;
-            //    uint color;
-            //    float speed;
-            //};
+            struct SimpleParticleInstanceData
+            {
+                float3x4 transform;
+                uint color;
+                float4 custom1;
+            };
 
             #include "UnityCG.cginc"
             #include "UnityStandardParticleInstancing.cginc"
@@ -72,8 +74,8 @@ Shader "Unlit/SimpleSprite"
 
                 UNITY_SETUP_INSTANCE_ID(v);
 
-
 #ifdef UNITY_INSTANCING_ENABLED
+
                 o.color = v.color * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
 #else
                 o.color = v.color;
@@ -82,6 +84,11 @@ Shader "Unlit/SimpleSprite"
                 o.uv = v.uv;
 
 #ifdef USE_IN_PARTICLE
+
+                UNITY_PARTICLE_INSTANCE_DATA data = unity_ParticleInstanceData[unity_InstanceID];
+
+                o.color.a = data.custom1.w;
+
                 vertInstancingColor(o.color);
                 vertInstancingUVs(v.uv, o.uv);
 #endif
