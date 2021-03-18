@@ -12,19 +12,14 @@ namespace GP4
         enum SpawnerType
         {
             Basic = 0,
-            DrawMesh = 1
+            DrawMesh = 1,
+            ParticleSystem = 2
         }
 
         #region Inspector
 
         [SerializeField]
         SpawnerType _SelectedType = SpawnerType.Basic;
-
-        [SerializeField]
-        BaseSpawner _BasicSpawner;
-
-        [SerializeField]
-        BaseSpawner _DrawMeshSpawner;
 
         [SerializeField]
         BaseLivingEntityData _LivingEntityData;
@@ -83,11 +78,9 @@ namespace GP4
 
         bool IsTypeEquals(BaseSpawner spawner, SpawnerType type)
         {
-            if (spawner is LivingEntityBasicSpawner && type == SpawnerType.Basic)
-            {
-                return true;
-            }
-            else if (spawner is LivingEntityDrawMeshSpawner && type == SpawnerType.DrawMesh)
+            if (spawner is LivingEntityBasicSpawner && type == SpawnerType.Basic ||
+                spawner is LivingEntityDrawMeshSpawner && type == SpawnerType.DrawMesh ||
+                spawner is LivingEntityParticleSystemSpawner && type == SpawnerType.ParticleSystem)
             {
                 return true;
             }
@@ -101,9 +94,7 @@ namespace GP4
         {
             if (!_type.HasValue)
             {
-                _spawners.Add(_BasicSpawner);
-                _spawners.Add(_DrawMeshSpawner);
-
+                _spawners.AddRange(GetComponentsInChildren<BaseSpawner>(true));
                 _spawners.ForEach((s) =>
                 {
                     s.gameObject.SetActive(false);
@@ -191,9 +182,10 @@ namespace GP4
 
                 var rect = new Rect(x, y, width, height);
 
-                var comboBoxList = new GUIContent[2];
+                var comboBoxList = new GUIContent[3];
                 comboBoxList[0] = new GUIContent("Basic");
                 comboBoxList[1] = new GUIContent("Draw Mesh");
+                comboBoxList[2] = new GUIContent("Particle System");
 
                 var buttonStyle = new GUIStyle("button");
                 buttonStyle.fontSize = (int)(60f * UICoeff);
@@ -216,20 +208,12 @@ namespace GP4
                 _comboBox.OnItemSelected += (i, userHasPressed) => {
                     if (!userHasPressed) return;
 
-                    if (i == 0)
-                    {
-                        _SelectedType = SpawnerType.Basic;
-                    }
-                    else if (i == 1)
-                    {
-                        _SelectedType = SpawnerType.DrawMesh;
-                    }
+                    _SelectedType = (SpawnerType)i;
 
                     UpdateType();
                 };
                 _comboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
                 _comboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
-
             }
 
             if (GUIVisibility)

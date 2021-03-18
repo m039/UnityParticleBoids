@@ -12,3 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0866fb0b5e2ccd846ae641b6000df62f, type: 3}
   m_Name: TriangleLivingEntity
   m_EditorClassIdentifier: 
+  sprite: {fileID: 21300000, guid: ffb372b6ee9f6ab458df43b90eaef599, type: 3}
+  color: {r: 0.2792098, g: 0.25720897, b: 0.6415094, a: 1}
+  radius: 0.5
