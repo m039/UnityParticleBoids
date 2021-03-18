@@ -54,7 +54,7 @@ namespace GP4
             }
 
             initData.sprite = sprite;
-            initData.radius = 0.5f * initData.scale.magnitude;
+            initData.radius = 0.5f * initData.scale.magnitude / LivingEntityDrawMeshSpawner.ReferenceScaleMagnitude;
             initData.rotation = rotation;
 
             return initData;

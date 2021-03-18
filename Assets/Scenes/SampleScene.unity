@@ -166,11 +166,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb5f57b46283bf34fabd5279f1251c2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 7000
+  numberOfEntities: 8000
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
   entetiesReferenceAlpha: 0.822
-  useGizmos: 0
+  useGizmos: 1
 --- !u!1 &676004603
 GameObject:
   m_ObjectHideFlags: 0
@@ -1281,7 +1281,7 @@ ParticleSystem:
         m_RotationOrder: 4
   ShapeModule:
     serializedVersion: 6
-    enabled: 1
+    enabled: 0
     type: 18
     angle: 25
     length: 5
@@ -5405,4 +5405,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
-  numberOfEntities: 1800
+  numberOfEntities: 2000

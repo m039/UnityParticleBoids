@@ -54,10 +54,10 @@ namespace GP4
 
         void LateUpdate()
         {
-            UpdateNewParticles();
+            UpdateParticles();
         }
 
-        void UpdateNewParticles()
+        void UpdateParticles()
         {
             InitIfNeeded();
 
@@ -81,6 +81,14 @@ namespace GP4
 
         void InitParticle(int particleIndex)
         {
+            Vector3 getPosition(Vector2 normalizedPosition)
+            {
+                var center = GameScene.Instance.SceneBounds.center;
+                var size = GameScene.Instance.SceneBounds.size;
+                size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
+                return center + size;
+            }
+
             var particle = _psParticles[particleIndex];
 
             var initData = Context.LivingEntityData.GetData();
@@ -90,7 +98,7 @@ namespace GP4
             particle.velocity = Quaternion.AngleAxis(initData.rotation, Vector3.forward) * Vector3.up * initData.speed;
             particle.startLifetime = particle.remainingLifetime = 1000000f;
             particle.startSize3D = initData.scale * entetiesReferenceScale;
-            particle.position = particle.position.WithZ(-initData.layer);
+            particle.position = getPosition(initData.position).WithZ(-initData.layer);
 
             _psParticles[particleIndex] = particle;
 
@@ -102,11 +110,9 @@ namespace GP4
             var particle = _psParticles[particleIndex];
             var radius = _psCustomData[particleIndex][1];
 
-            var boundRadius = particle.startSize / LivingEntityDrawMeshSpawner.ReferenceScaleMagnitude * radius;
-
             // Update the particle data.
 
-            if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, boundRadius))
+            if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, radius))
             {
                 particle.remainingLifetime = 0f;
 
@@ -160,9 +166,10 @@ namespace GP4
 
         private void OnDrawGizmosSelected()
         {
-            InitIfNeeded();
+            if (!useGizmos)
+                return;
 
-            Gizmos.color = Color.blue;
+            InitIfNeeded();
 
             var count = _particleSystem.GetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
             _particleSystem.GetParticles(_psParticles, count);
@@ -171,7 +178,15 @@ namespace GP4
                 var particle = _psParticles[i];
                 var radius = _psCustomData[i][1];
 
-                Gizmos.DrawWireSphere(_psParticles[i].position + transform.position, particle.startSize / LivingEntityDrawMeshSpawner.ReferenceScaleMagnitude * radius);
+                var color = Color.blue.WithAlpha(0.5f);
+
+                if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, radius))
+                {
+                    color = Color.yellow.WithAlpha(0.5f);
+                }
+
+                Gizmos.color = color;
+                Gizmos.DrawWireSphere(_psParticles[i].position + transform.position, radius);
             }
         }
 

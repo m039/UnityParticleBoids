@@ -37,8 +37,6 @@ namespace GP4
 
         Material _bigTriangleMaterial;
 
-        float _entityRadius;
-
         MaterialPropertyBlock _propertyBlock;
 
         static readonly int ColorId = Shader.PropertyToID("_Color");
@@ -66,24 +64,14 @@ namespace GP4
             _bigTriangleMaterial.mainTexture = sprite.texture;
             _bigTriangleMaterial.color = Color.white;
 
-            _entityRadius = entityData.radius;
-
             _propertyBlock = new MaterialPropertyBlock();
-        }
-
-        void Update()
-        {
-            DrawEnteties();
-        }
-
-        void FixedUpdate()
-        {
-            UpdateEnteties();
         }
 
         void LateUpdate()
         {
+            UpdateEnteties();
             CreateInstances();
+            DrawEnteties();
         }
 
         void UpdateEnteties()
@@ -102,7 +90,7 @@ namespace GP4
                     data.alpha = Mathf.Clamp(data.alpha + Time.deltaTime * AlphaFadeOutSpeed, 0, 1);
                 }
 
-                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * data.radius;
+                var boundRadius = data.scaleFactor * data.radius;
                 
                 return Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius);
             }
@@ -126,6 +114,8 @@ namespace GP4
       
         void DrawEnteties()
         {
+            var camera = Camera.main;
+
             for (int i = 0; i < Context.LivingEntityData.NumberOfLayers; i++)
             {
                 foreach (var data in _enteties)
@@ -134,7 +124,18 @@ namespace GP4
                         continue;
 
                     _propertyBlock.SetColor(ColorId, data.Color);
-                    Graphics.DrawMesh(_bigTrianlgeMesh, data.Matrix, _bigTriangleMaterial, 0, Camera.main, 0, _propertyBlock);
+                    Graphics.DrawMesh(
+                        _bigTrianlgeMesh,
+                        data.Matrix,
+                        _bigTriangleMaterial,
+                        0,
+                        camera,
+                        0,
+                        _propertyBlock,
+                        false,
+                        false,
+                        false
+                        );
                 }
             }
         }
@@ -154,7 +155,7 @@ namespace GP4
 
             foreach (var data in _enteties)
             {
-                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
+                var boundRadius = data.scaleFactor * data.radius;
 
                 if (Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius))
                 {
