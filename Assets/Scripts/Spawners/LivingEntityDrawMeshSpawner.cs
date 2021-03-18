@@ -10,7 +10,7 @@ namespace GP4
 
     public class LivingEntityDrawMeshSpawner : BaseSpawner
     {
-        static readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
+        static public readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
 
         const float AlphaFadeOutSpeed = 0.56f;
 
@@ -48,19 +48,6 @@ namespace GP4
             base.OnEnable();
 
             InitRenderData();
-        }
-
-        protected override void PerformOnGUI(IDrawer drawer)
-        {
-            base.PerformOnGUI(drawer);
-
-            drawer.DrawStatFrame(4);
-            drawer.DrawStat(0, "Entities: " + _enteties.Count);
-            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
-            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
-            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
-
-            drawer.DrawName("Graphics.DrawMesh, Transparent [DrawMesh]");
         }
 
         void InitRenderData()
@@ -115,7 +102,7 @@ namespace GP4
                     data.alpha = Mathf.Clamp(data.alpha + Time.deltaTime * AlphaFadeOutSpeed, 0, 1);
                 }
 
-                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * _entityRadius;
+                var boundRadius = data.scaleFactor * data.scale.magnitude / ReferenceScaleMagnitude * data.radius;
                 
                 return Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, data.position, boundRadius);
             }
@@ -211,6 +198,7 @@ namespace GP4
             entityData.speed = livingEntityData.speed;
             entityData.baseColor = livingEntityData.color;
             entityData.layer = livingEntityData.layer;
+            entityData.radius = livingEntityData.radius;
             entityData.alpha = 0f;
 
             _enteties.AddLast(entityData);
@@ -233,6 +221,19 @@ namespace GP4
             InitRenderData();
         }
 
+        protected override void PerformOnGUI(IDrawer drawer)
+        {
+            base.PerformOnGUI(drawer);
+
+            drawer.DrawStatFrame(4);
+            drawer.DrawStat(0, "Entities: " + _enteties.Count);
+            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
+            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
+            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
+
+            drawer.DrawName("Graphics.DrawMesh, Transparent [DrawMesh]");
+        }
+
         public class LivingEntityData
         {
             public Vector2 position;
@@ -252,6 +253,8 @@ namespace GP4
             public float alphaFactor = 1f;
 
             public int layer;
+
+            public float radius;
 
             public Color Color
             {

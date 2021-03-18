@@ -21,16 +21,29 @@ Shader "Unlit/SimpleSprite"
 
         Pass
         {
-
             CGPROGRAM
 
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma target 3.0
+            #pragma target 4.5
             #pragma multi_compile_instancing
+            #pragma multi_compile __ USE_IN_PARTICLE
+
+            #pragma instancing_options procedural:vertInstancingSetup
+
+            //#define UNITY_PARTICLE_INSTANCE_DATA MyParticleInstanceData
+            //#define UNITY_PARTICLE_INSTANCE_DATA_NO_ANIM_FRAME
+
+            //struct MyParticleInstanceData
+            //{
+            //    float3x4 transform;
+            //    uint color;
+            //    float speed;
+            //};
 
             #include "UnityCG.cginc"
+            #include "UnityStandardParticleInstancing.cginc"
 
             struct vertIn
             {
@@ -59,13 +72,22 @@ Shader "Unlit/SimpleSprite"
 
                 UNITY_SETUP_INSTANCE_ID(v);
 
-                o.vertex = UnityObjectToClipPos(v.vertex);
+
 #ifdef UNITY_INSTANCING_ENABLED
                 o.color = v.color * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
 #else
                 o.color = v.color;
 #endif
+
                 o.uv = v.uv;
+
+#ifdef USE_IN_PARTICLE
+                vertInstancingColor(o.color);
+                vertInstancingUVs(v.uv, o.uv);
+#endif
+
+                o.vertex = UnityObjectToClipPos(v.vertex);
+
                 return o;
             }
 
