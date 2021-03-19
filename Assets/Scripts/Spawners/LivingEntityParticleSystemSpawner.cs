@@ -248,7 +248,7 @@ namespace GP4
             drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
             drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
-            drawer.DrawName("ParticleSystem");
+            drawer.DrawName("Using Shuriken (the default, CPU-based Unity particle system)");
 
             drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }

@@ -102,7 +102,7 @@ namespace GP4
             drawer.DrawStatFrame(1);
             drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
 
-            drawer.DrawName("GameObject, Transparent [Basic]");
+            drawer.DrawName("Each entety is a living GameObject");
 
             drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }

@@ -13,7 +13,8 @@ namespace GP4
         {
             Basic = 0,
             DrawMesh = 1,
-            ParticleSystem = 2
+            OneMesh = 2,
+            ParticleSystem = 3
         }
 
         #region Inspector
@@ -80,6 +81,7 @@ namespace GP4
         {
             if (spawner is LivingEntityBasicSpawner && type == SpawnerType.Basic ||
                 spawner is LivingEntityDrawMeshSpawner && type == SpawnerType.DrawMesh ||
+                spawner is LivingEntityOneMeshSpawner && type == SpawnerType.OneMesh ||
                 spawner is LivingEntityParticleSystemSpawner && type == SpawnerType.ParticleSystem)
             {
                 return true;
@@ -182,10 +184,13 @@ namespace GP4
 
                 var rect = new Rect(x, y, width, height);
 
-                var comboBoxList = new GUIContent[3];
-                comboBoxList[0] = new GUIContent("Basic");
-                comboBoxList[1] = new GUIContent("Draw Mesh");
-                comboBoxList[2] = new GUIContent("Particle System");
+                var comboBoxList = new GUIContent[]
+                {
+                    new GUIContent("GameObject"), // Basic
+                    new GUIContent("Draw Mesh"),
+                    new GUIContent("One Mesh"),
+                    new GUIContent("Particle System")
+                };
 
                 var buttonStyle = new GUIStyle("button");
                 buttonStyle.fontSize = (int)(60f * UICoeff);

@@ -75,7 +75,6 @@ Shader "Unlit/SimpleSprite"
                 UNITY_SETUP_INSTANCE_ID(v);
 
 #ifdef UNITY_INSTANCING_ENABLED
-
                 o.color = v.color * UNITY_ACCESS_INSTANCED_PROP(Props, _Color);
 #else
                 o.color = v.color;

@@ -21,8 +21,8 @@ namespace GP4
 
         #region Inspector
 
-        [SerializeField]
-        bool _Test = false;
+        //[SerializeField]
+        //bool _Test = false;
 
         #endregion
 
