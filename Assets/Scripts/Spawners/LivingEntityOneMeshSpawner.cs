@@ -18,6 +18,8 @@ namespace GP4
 
         Material _material;
 
+        protected override bool UseSort => true;
+
         protected override void OnInitSimulation()
         {
             /// Create a sprite data

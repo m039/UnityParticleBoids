@@ -15,6 +15,8 @@ namespace GP4
 
         int _previousNumberOfEntities = -1;
 
+        protected virtual bool UseSort => false;
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -30,7 +32,8 @@ namespace GP4
             {
                 entetiesReferenceScale = () => entetiesReferenceScale,
                 entetiesReferenceAlpha = () => entetiesReferenceAlpha,
-                entetiesReferenceSpeed = () => entetiesReferenceSpeed
+                entetiesReferenceSpeed = () => entetiesReferenceSpeed,
+                useSort = () => UseSort
             };
 
             OnInitSimulation();
@@ -96,6 +99,8 @@ namespace GP4
 
             public GetSettingValue<Bounds> sceneBounds => () => GameScene.Instance.SceneBounds;
 
+            public GetSettingValue<bool> useSort = () => false;
+
             public List<LivingEntityData> Enteties => _enteties;
 
             public void Populate(int numberOfEntities, BaseLivingEntityConfig entetyConfig)
@@ -146,8 +151,7 @@ namespace GP4
 
                 bool updateEntity(LivingEntityData data)
                 {
-                    var rotation = Quaternion.AngleAxis(data.rotation, Vector3.forward);
-                    var deltaPosition = (Vector2)(rotation * Vector3.up * (data.speed * referenceSpeed) * deltaTime);
+                    var deltaPosition = (Vector2)(data.Rotation * Vector3.up * data.speed * referenceSpeed * deltaTime);
 
                     data.position += deltaPosition;
                     data.scaleFactor = refenceScale;
@@ -173,7 +177,10 @@ namespace GP4
                     }
                 }
 
-                //_enteties.Sort(_sEntetiesComparer);
+                if (useSort())
+                {
+                    _enteties.Sort(_sEntetiesComparer);
+                }
             }
 
             public void DrawGizmos()

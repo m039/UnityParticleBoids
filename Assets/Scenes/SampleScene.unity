@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb5f57b46283bf34fabd5279f1251c2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 80
+  numberOfEntities: 8000
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
   entetiesReferenceAlpha: 1
@@ -214,10 +214,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e40379e848d38164c81f09ea4a25f1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 80
-  entetiesReferenceSpeed: 2.06
-  entetiesReferenceScale: 1.11
-  entetiesReferenceAlpha: 1
+  numberOfEntities: 20000
+  entetiesReferenceSpeed: 0.11
+  entetiesReferenceScale: 0.2
+  entetiesReferenceAlpha: 0.846
   useGizmos: 0
 --- !u!1 &676004603
 GameObject:
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _SelectedType: 3
-  _LivingEntityData: {fileID: 11400000, guid: e7b6680f8a003ea459621aa949065aa7, type: 2}
+  _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
 Transform:
@@ -632,10 +632,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc92d484bd0fd2a40aa44fed0dbc8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 200
-  entetiesReferenceSpeed: 2.06
-  entetiesReferenceScale: 1.11
-  entetiesReferenceAlpha: 1
+  numberOfEntities: 20000
+  entetiesReferenceSpeed: 0.11
+  entetiesReferenceScale: 0.2
+  entetiesReferenceAlpha: 0.846
   useGizmos: 0
 --- !u!199 &1489204035
 ParticleSystemRenderer:
@@ -5452,7 +5452,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c08e4c8f4efb5468b9d9aa1332499b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 80
+  numberOfEntities: 8000
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
   entetiesReferenceAlpha: 1
