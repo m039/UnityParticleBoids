@@ -214,10 +214,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e40379e848d38164c81f09ea4a25f1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 8000
-  entetiesReferenceSpeed: 2.06
-  entetiesReferenceScale: 1.11
-  entetiesReferenceAlpha: 1
+  numberOfEntities: 20000
+  entetiesReferenceSpeed: 1.82
+  entetiesReferenceScale: 0.42
+  entetiesReferenceAlpha: 0.828
   useGizmos: 0
 --- !u!1 &676004603
 GameObject:
@@ -632,10 +632,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc92d484bd0fd2a40aa44fed0dbc8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 30000
-  entetiesReferenceSpeed: 0.96
-  entetiesReferenceScale: 0.17
-  entetiesReferenceAlpha: 0.822
+  numberOfEntities: 20000
+  entetiesReferenceSpeed: 1.82
+  entetiesReferenceScale: 0.42
+  entetiesReferenceAlpha: 0.828
   useGizmos: 0
 --- !u!199 &1489204035
 ParticleSystemRenderer:
@@ -1271,7 +1271,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 30000
+    maxNumParticles: 20000
     size3D: 1
     rotation3D: 0
     gravityModifier:
@@ -2689,7 +2689,7 @@ ParticleSystem:
     speedModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.96
+      scalar: 1.82
       minScalar: 1
       maxCurve:
         serializedVersion: 2

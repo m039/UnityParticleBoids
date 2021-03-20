@@ -147,30 +147,6 @@ namespace GP4
 
         public class LivingEntitySimulation
         {
-            class LivingEntityDataComparer : IComparer<LivingEntityData>
-            {
-                public int Compare(LivingEntityData x, LivingEntityData y)
-                {
-                    if (x == null && y != null)
-                        return -1;
-
-                    if (x != null && y == null)
-                        return 1;
-
-                    if (x == null && y == null)
-                        return 0;
-
-                    var compare = x.layer.CompareTo(y.layer) ;
-                    if (compare == 0)
-                    {
-                        return x.__id.CompareTo(y.__id);
-                    } else
-                    {
-                        return compare;
-                    }
-                }
-            }
-
             readonly static LivingEntityDataComparer _sEntetiesComparer = new LivingEntityDataComparer();
 
             readonly List<LivingEntityData> _enteties = new List<LivingEntityData>();
@@ -298,11 +274,36 @@ namespace GP4
             {
                 _enteties.Clear();
             }
+
+            class LivingEntityDataComparer : IComparer<LivingEntityData>
+            {
+                public int Compare(LivingEntityData x, LivingEntityData y)
+                {
+                    if (x == null && y != null)
+                        return -1;
+
+                    if (x != null && y == null)
+                        return 1;
+
+                    if (x == null && y == null)
+                        return 0;
+
+                    var compare = x.layer.CompareTo(y.layer);
+                    if (compare == 0)
+                    {
+                        return x.__id.CompareTo(y.__id);
+                    }
+                    else
+                    {
+                        return compare;
+                    }
+                }
+            }
         }
 
         public class LivingEntityData
         {
-            static Int64 _sId = 0;
+            static long _sId = 0;
 
             public Vector2 position;
 
@@ -324,7 +325,7 @@ namespace GP4
 
             public float radius;
 
-            internal Int64 __id;
+            internal long __id;
 
             public LivingEntityData()
             {

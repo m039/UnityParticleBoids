@@ -207,6 +207,8 @@ namespace GP4
             {
                 // Vertex
 
+                int pointIndex = index * 4;
+
                 var rotation = Quaternion.AngleAxis(data.rotation, Vector3.forward);
                 var matrix = Matrix4x4.TRS(Vector3.zero, rotation, Vector2.one * data.scale * data.scaleFactor);
 
@@ -215,17 +217,19 @@ namespace GP4
                 Vector3 p3 = data.position + (Vector2)(matrix * _spriteVertices[2]);
                 Vector3 p4 = data.position + (Vector2)(matrix * _spriteVertices[3]);
 
-                vertices[index * 4 + 0] = p1;
-                vertices[index * 4 + 1] = p2;
-                vertices[index * 4 + 2] = p3;
-                vertices[index * 4 + 3] = p4;
+                vertices[pointIndex + 0] = p1;
+                vertices[pointIndex + 1] = p2;
+                vertices[pointIndex + 2] = p3;
+                vertices[pointIndex + 3] = p4;
 
                 // Color
 
-                colors[index * 4 + 0] = data.Color;
-                colors[index * 4 + 1] = data.Color;
-                colors[index * 4 + 2] = data.Color;
-                colors[index * 4 + 3] = data.Color;
+                var dataColor = data.Color;
+
+                colors[pointIndex + 0] = dataColor;
+                colors[pointIndex + 1] = dataColor;
+                colors[pointIndex + 2] = dataColor;
+                colors[pointIndex + 3] = dataColor;
             }
         }
     }
