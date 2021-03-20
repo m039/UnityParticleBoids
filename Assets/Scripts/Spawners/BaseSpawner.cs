@@ -244,7 +244,7 @@ namespace GP4
                 tRect.y += topOffset + labelSize.y + margin;
                 tRect.height = labelSize.y + padding * 2;
 
-                if (_numberText == null) {
+                if (_numberText == null || int.TryParse(_numberText, out int result) && result != number) {
                     _numberText = number.ToString();
                 }
 
@@ -255,7 +255,7 @@ namespace GP4
 
                 var text = GUI.TextField(tRect, _numberText, 10, _textStyle);
 
-                if (int.TryParse(text, out int result))
+                if (int.TryParse(text, out result))
                 {
                     number = result;
                     _numberText = text;

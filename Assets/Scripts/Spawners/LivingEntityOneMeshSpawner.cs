@@ -167,6 +167,8 @@ namespace GP4
             drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
 
             drawer.DrawName("Using one mesh for drawing all enteties");
+
+            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
 
         public class MeshTool
