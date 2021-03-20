@@ -40,7 +40,7 @@ namespace GP4
             }
         }
 
-        public BaseLivingEntityData LivingEntityData => _LivingEntityData;
+        public BaseLivingEntityData LivingEntityConfig => _LivingEntityData;
 
         public bool GUIVisibility => _GUIVisibility;
 

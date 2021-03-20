@@ -88,7 +88,7 @@ namespace GP4
 
             var particle = _psParticles[particleIndex];
 
-            var initData = Context.LivingEntityData.GetData();
+            var initData = Context.LivingEntityConfig.GetData();
 
             particle.rotation = initData.rotation;
             particle.startColor = initData.color;
@@ -217,7 +217,7 @@ namespace GP4
 
             // Init appearance
 
-            var entityData = Context.LivingEntityData.GetData();
+            var entityData = Context.LivingEntityConfig.GetData();
             var sprite = entityData.sprite;
 
             var mesh = new Mesh();

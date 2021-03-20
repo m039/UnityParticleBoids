@@ -4751,10 +4751,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc92d484bd0fd2a40aa44fed0dbc8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  useBurstCompiler: 0
   numberOfEntities: 200
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
+  entetiesReferenceAlpha: 1
   useGizmos: 1
 --- !u!199 &5389111209996183797
 ParticleSystemRenderer:

@@ -59,7 +59,7 @@ namespace GP4
 
         void InitRenderData()
         {
-            var entityData = Context.LivingEntityData.GetData();
+            var entityData = Context.LivingEntityConfig.GetData();
             var sprite = entityData.sprite;
 
             _bigTrianlgeMesh = new Mesh();
@@ -79,7 +79,7 @@ namespace GP4
         void LateUpdate()
         {
             _simulation.Update();
-            _simulation.Populate(numberOfEntities, Context.LivingEntityData);
+            _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
             DrawEnteties();
         }
 
@@ -87,7 +87,7 @@ namespace GP4
         {
             var camera = Camera.main;
 
-            for (int i = 0; i < Context.LivingEntityData.NumberOfLayers; i++)
+            for (int i = 0; i < Context.LivingEntityConfig.NumberOfLayers; i++)
             {
                 foreach (var data in _simulation.Enteties)
                 {
@@ -97,7 +97,7 @@ namespace GP4
                     _propertyBlock.SetColor(ColorId, data.Color);
                     Graphics.DrawMesh(
                         _bigTrianlgeMesh,
-                        data.Matrix,
+                        Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.scale * data.scaleFactor),
                         _bigTriangleMaterial,
                         0,
                         camera,
@@ -280,7 +280,7 @@ namespace GP4
 
                     // Draw the direction.
 
-                    Gizmos.color = Color.white;
+                    Gizmos.color = Color.green;
 
                     Gizmos.DrawLine(data.position, (Vector3) data.position + Quaternion.AngleAxis(data.rotation, Vector3.forward) * Vector3.up * boundRadius);
                 }
@@ -322,12 +322,6 @@ namespace GP4
                     return new Color(baseColor.r, baseColor.g, baseColor.b, baseColor.a * alpha * alphaFactor);
                 }
             }
-
-            public Matrix4x4 Matrix {
-                get {
-                    return Matrix4x4.TRS(position, Quaternion.AngleAxis(rotation, Vector3.forward), scale * scaleFactor);
-                }
-             }
         }
     }
 

@@ -7,7 +7,7 @@ namespace GP4
 {
     public interface ISpawnerContext
     {
-        BaseLivingEntityData LivingEntityData { get; }
+        BaseLivingEntityData LivingEntityConfig { get; }
 
         event System.Action OnLivingEntityDataChanged;
 
@@ -46,6 +46,9 @@ namespace GP4
 
         private void OnDisable()
         {
+            if (Context == null)
+                return;
+
             Context.OnLivingEntityDataChanged -= OnLivingEntityDataChanged;
             Context = null;    
         }

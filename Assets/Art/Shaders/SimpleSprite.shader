@@ -8,7 +8,7 @@ Shader "Unlit/SimpleSprite"
     {
         Tags {
             "Queue" = "Transparent"
-            "RenderType"="Transparent"
+            "RenderType" = "Transparent"
             "IgnoreProjector" = "True"
             "PreviewType" = "Plane"
             "CanUseSpriteAtlas" = "True"
@@ -83,7 +83,6 @@ Shader "Unlit/SimpleSprite"
                 o.uv = v.uv;
 
 #ifdef USE_IN_PARTICLE
-
                 UNITY_PARTICLE_INSTANCE_DATA data = unity_ParticleInstanceData[unity_InstanceID];
 
                 o.color.a = data.custom1.w;
