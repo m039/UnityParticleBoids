@@ -1,14 +1,12 @@
 using UnityEngine;
 using m039.Common;
 
-using LivingEntetyData = GP4.LivingEntityDrawMeshSpawner.LivingEntityData;
-using LivingEntitySimulation = GP4.LivingEntityDrawMeshSpawner.LivingEntitySimulation;
 using System.Collections.Generic;
 
 namespace GP4
 {
 
-    public class LivingEntityBasicSpawner : BaseSpawner
+    public class LivingEntityBasicSpawner : BaseSimulationSpawner
     {
         #region Inspector
 
@@ -18,41 +16,15 @@ namespace GP4
 
         #endregion
 
-        LivingEntitySimulation _simulation;
-
         LivingEntity[] _livingEntities;
-
-        int _previousNumberOfEntities = -1;
 
         GameObject _parent;
 
-        protected override void OnEnable()
+        protected override void OnInitSimulation()
         {
-            base.OnEnable();
-
-            Init();
-        }
-
-        void LateUpdate()
-        {
-            UpdateSimulation();
-            PrePareForDrawing();
-        }
-
-        void Init()
-        {
-            /// Create simulation
-
-            _simulation = new LivingEntitySimulation()
-            {
-                entetiesReferenceScale = () => entetiesReferenceScale,
-                entetiesReferenceAlpha = () => entetiesReferenceAlpha,
-                entetiesReferenceSpeed = () => entetiesReferenceSpeed
-            };
-
             // Create gameObjects
 
-            var cache = new List<Transform>(); // Reuse gameobjects from the parent.
+            var cache = new List<Transform>(); // To reuse gameObjects from the parent.
 
             if (_parent != null)
             {
@@ -97,27 +69,11 @@ namespace GP4
             }
         }
 
-        void UpdateSimulation()
-        {
-            // Do physics with enteties.
-            _simulation.Update(Context.LivingEntityConfig);
-
-            // Reset the simulation when needed.
-            if (_previousNumberOfEntities != numberOfEntities)
-            {
-                Init();
-                _previousNumberOfEntities = numberOfEntities;
-            }
-
-            // Create all enteties data if needed.
-            _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
-        }
-
-        void PrePareForDrawing()
+        protected override void OnDrawSimulation()
         {
             int i = 0;
 
-            foreach (var entityData in _simulation.Enteties)
+            foreach (var entityData in Simulation.Enteties)
             {
                 var livingEntity = _livingEntities[i++];
 
@@ -125,15 +81,6 @@ namespace GP4
                 livingEntity.transform.position = ((Vector3)entityData.position).WithZ(-entityData.layer);
                 livingEntity.transform.localScale = entityData.scale;
             }
-        }
-
-        void OnDrawGizmosSelected()
-        {
-            if (!useGizmos)
-                return;
-
-            if (Application.isPlaying)
-                _simulation.DrawGizmos();
         }
 
         public override void OnSpawnerSelected()

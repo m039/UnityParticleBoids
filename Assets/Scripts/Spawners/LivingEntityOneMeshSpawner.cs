@@ -1,14 +1,9 @@
 using UnityEngine;
 
-using LivingEntetyData = GP4.LivingEntityDrawMeshSpawner.LivingEntityData;
-using LivingEntitySimulation = GP4.LivingEntityDrawMeshSpawner.LivingEntitySimulation;
-
 namespace GP4
 {
-    public class LivingEntityOneMeshSpawner : BaseSpawner
+    public class LivingEntityOneMeshSpawner : BaseSimulationSpawner
     {
-        LivingEntitySimulation _simulation;
-
         readonly MeshTool _meshTool = new MeshTool();
 
         Mesh _mesh;
@@ -23,16 +18,7 @@ namespace GP4
 
         Material _material;
 
-        int _previousNumberOfEntities = -1;
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            Init();
-        }
-
-        void Init()
+        protected override void OnInitSimulation()
         {
             /// Create a sprite data
 
@@ -60,44 +46,13 @@ namespace GP4
             _material.color = Color.white;
             _material.enableInstancing = true;
             _material.mainTexture = sprite.texture; // Should be one texture for all enteties.
-
-            /// Create simulation
-
-            _simulation = new LivingEntitySimulation()
-            {
-                entetiesReferenceScale = () => entetiesReferenceScale,
-                entetiesReferenceAlpha = () => entetiesReferenceAlpha,
-                entetiesReferenceSpeed = () => entetiesReferenceSpeed
-            };
         }
 
-        void LateUpdate()
-        {
-            UpdateSimulation();
-            DrawEnteties();
-        }
-
-        void UpdateSimulation()
-        {
-            // Do physics with enteties.
-            _simulation.Update(Context.LivingEntityConfig);
-
-            // Reset the simulation when needed.
-            if (_previousNumberOfEntities != numberOfEntities)
-            {
-                Init();
-                _previousNumberOfEntities = numberOfEntities;
-            }
-
-            // Create all enteties data if needed.
-            _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
-        }
-
-        void DrawEnteties()
+        protected override void OnDrawSimulation()
         {
             var i = 0;
 
-            foreach (var entityData in _simulation.Enteties)
+            foreach (var entityData in Simulation.Enteties)
             {
                 _meshTool.PopulateEntity(i, entityData, _vertices, _colors);
                 i++;
@@ -119,26 +74,6 @@ namespace GP4
                 false
                 );
         }
-
-        void OnDrawGizmosSelected()
-        {
-            if (!useGizmos)
-                return;
-
-            if (Application.isPlaying)
-                _simulation.DrawGizmos();
-        }
-
-        public override void OnSpawnerDeselected()
-        {  
-        }
-
-        public override void OnSpawnerSelected()
-        {
-            _simulation.Reset();
-        }
-
-        protected override int EntetiesCount => _simulation.Enteties.Count;
 
         protected override void PerformOnGUI(IDrawer drawer)
         {
@@ -181,7 +116,7 @@ namespace GP4
                 _spriteVertices = sprite.vertices;
             }
 
-            public void PopulateEntity(int index, LivingEntetyData data, Vector3[] vertices, Color[] colors)
+            public void PopulateEntity(int index, LivingEntityData data, Vector3[] vertices, Color[] colors)
             {
                 // Vertex
 

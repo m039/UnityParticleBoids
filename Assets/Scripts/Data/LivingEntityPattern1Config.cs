@@ -8,6 +8,8 @@ namespace GP4
     [CreateAssetMenu(menuName = Consts.MenuItemRoot + "/LivingEntityData/Pattern1")]
     public class LivingEntityPattern1Config : BaseLivingEntityConfig
     {
+        static readonly float ReferenceScaleMagnitude = new Vector2(1, 1).magnitude;
+
         public Sprite sprite;
 
         public Color smallPopulationColor;
@@ -54,7 +56,7 @@ namespace GP4
             }
 
             initData.sprite = sprite;
-            initData.radius = 0.5f * initData.scale.magnitude / LivingEntityDrawMeshSpawner.ReferenceScaleMagnitude;
+            initData.radius = 0.5f * initData.scale.magnitude / ReferenceScaleMagnitude;
             initData.rotation = rotation;
 
             return initData;

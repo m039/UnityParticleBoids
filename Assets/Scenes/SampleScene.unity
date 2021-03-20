@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d491769096496447856fbc6c55b0a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SelectedType: 0
+  _SelectedType: 3
   _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
@@ -605,7 +605,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1489204033
 Transform:
   m_ObjectHideFlags: 0
@@ -632,7 +632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc92d484bd0fd2a40aa44fed0dbc8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 20000
+  numberOfEntities: 2000
   entetiesReferenceSpeed: 0.32
   entetiesReferenceScale: 0.23
   entetiesReferenceAlpha: 0.923
@@ -1271,7 +1271,7 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     randomizeRotationDirection: 0
-    maxNumParticles: 20000
+    maxNumParticles: 2000
     size3D: 1
     rotation3D: 0
     gravityModifier:
@@ -5425,7 +5425,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1605227172
 Transform:
   m_ObjectHideFlags: 0
