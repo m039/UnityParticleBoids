@@ -34,16 +34,6 @@ Shader "Unlit/SimpleSprite"
 
             #pragma instancing_options procedural:vertInstancingSetup
 
-            #define UNITY_PARTICLE_INSTANCE_DATA SimpleParticleInstanceData
-            #define UNITY_PARTICLE_INSTANCE_DATA_NO_ANIM_FRAME
-
-            struct SimpleParticleInstanceData
-            {
-                float3x4 transform;
-                uint color;
-                float4 custom1;
-            };
-
             #include "UnityCG.cginc"
             #include "UnityStandardParticleInstancing.cginc"
 
@@ -83,8 +73,6 @@ Shader "Unlit/SimpleSprite"
                 o.uv = v.uv;
 
 #ifdef USE_IN_PARTICLE
-                UNITY_PARTICLE_INSTANCE_DATA data = unity_ParticleInstanceData[unity_InstanceID];
-
                 vertInstancingColor(o.color);
                 vertInstancingUVs(v.uv, o.uv);
 #endif

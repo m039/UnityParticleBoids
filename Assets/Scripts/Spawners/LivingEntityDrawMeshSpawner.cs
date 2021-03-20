@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Linq;
+using m039.Common;
 
 namespace GP4
 {
@@ -48,7 +49,7 @@ namespace GP4
                 _propertyBlock.SetColor(ColorId, data.Color);
                 Graphics.DrawMesh(
                     _mesh,
-                    Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.Scale),
+                    Matrix4x4.TRS(data.Position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.Scale),
                     _material,
                     0,
                     camera,
@@ -72,7 +73,7 @@ namespace GP4
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawName("Draw each particle with Graphics.DrawMesh");
+            drawer.DrawName("Draw each entity with Graphics.DrawMesh");
         }
     }
 

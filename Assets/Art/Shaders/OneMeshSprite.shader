@@ -14,9 +14,9 @@ Shader "Unlit/OneMeshSprite"
             "CanUseSpriteAtlas" = "True"
         }
 
-
         Cull Off
         Lighting Off
+        ZTest Always
 
         Blend One OneMinusSrcAlpha
 

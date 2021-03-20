@@ -173,7 +173,7 @@ namespace GP4
                     }
                 }
 
-                _enteties.Sort(_sEntetiesComparer);
+                //_enteties.Sort(_sEntetiesComparer);
             }
 
             public void DrawGizmos()
@@ -203,7 +203,7 @@ namespace GP4
 
                     Gizmos.color = Color.green;
 
-                    Gizmos.DrawLine(data.position, (Vector3)data.position + Quaternion.AngleAxis(data.rotation, Vector3.forward) * Vector3.up * boundRadius);
+                    Gizmos.DrawLine(data.Position, (Vector3)data.position + Quaternion.AngleAxis(data.rotation, Vector3.forward) * Vector3.up * boundRadius);
                 }
             }
 
@@ -269,11 +269,27 @@ namespace GP4
                 __id = _sId++;
             }
 
-            public Vector2 Scale
+            public Vector3 Position
             {
                 get
                 {
-                    return scale * scaleFactor;
+                    return ((Vector3)position).WithZ(-layer);
+                }
+            }
+
+            public Vector3 Scale
+            {
+                get
+                {
+                    return new Vector3(scale.x, scale.y, 1.0f) * scaleFactor;
+                }
+            }
+
+            public Quaternion Rotation
+            {
+                get
+                {
+                    return Quaternion.AngleAxis(rotation, Vector3.forward);
                 }
             }
 

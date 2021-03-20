@@ -47,11 +47,12 @@ namespace GP4
                 var particle = _particles[i];
 
                 particle.rotation = entityData.rotation;
+                particle.axisOfRotation = Vector3.forward;
                 particle.startColor = entityData.Color;
                 particle.velocity = Vector3.zero;
                 particle.startLifetime = particle.remainingLifetime = 1000f;
                 particle.startSize3D = entityData.Scale;
-                particle.position = ((Vector3)entityData.position).WithZ(-entityData.layer);
+                particle.position = entityData.Position;
 
                 _particles[i] = particle;
 

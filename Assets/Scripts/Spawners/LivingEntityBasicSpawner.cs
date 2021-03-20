@@ -78,8 +78,9 @@ namespace GP4
                 var livingEntity = _livingEntities[i++];
 
                 livingEntity.Color = entityData.Color;
-                livingEntity.transform.position = ((Vector3)entityData.position).WithZ(-entityData.layer);
-                livingEntity.transform.localScale = entityData.scale;
+                livingEntity.transform.position = entityData.Position;
+                livingEntity.transform.localScale = entityData.Scale;
+                livingEntity.transform.rotation = entityData.Rotation;
             }
         }
 
