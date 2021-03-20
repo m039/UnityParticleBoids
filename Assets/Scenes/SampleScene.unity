@@ -215,9 +215,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfEntities: 20000
-  entetiesReferenceSpeed: 1.82
-  entetiesReferenceScale: 0.42
-  entetiesReferenceAlpha: 0.828
+  entetiesReferenceSpeed: 0.32
+  entetiesReferenceScale: 0.23
+  entetiesReferenceAlpha: 0.923
   useGizmos: 0
 --- !u!1 &676004603
 GameObject:
@@ -633,9 +633,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberOfEntities: 20000
-  entetiesReferenceSpeed: 1.82
-  entetiesReferenceScale: 0.42
-  entetiesReferenceAlpha: 0.828
+  entetiesReferenceSpeed: 0.32
+  entetiesReferenceScale: 0.23
+  entetiesReferenceAlpha: 0.923
   useGizmos: 0
 --- !u!199 &1489204035
 ParticleSystemRenderer:
@@ -2689,7 +2689,7 @@ ParticleSystem:
     speedModifier:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1.82
+      scalar: 0.32
       minScalar: 1
       maxCurve:
         serializedVersion: 2

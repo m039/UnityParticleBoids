@@ -16,6 +16,21 @@ namespace GP4
 
     public abstract class BaseSpawner : MonoBehaviour
     {
+        #region Inspector
+
+        public int numberOfEntities = 10;
+
+        public float entetiesReferenceSpeed = 5f;
+
+        public float entetiesReferenceScale = 0.5f;
+
+        [Range(0, 1f)]
+        public float entetiesReferenceAlpha = 1f;
+
+        public bool useGizmos = true;
+
+        #endregion
+
         IDrawer _drawer;
 
         public bool IsSelected { get; private set; } = false;
@@ -57,9 +72,10 @@ namespace GP4
 
         public abstract void OnSpawnerDeselected();
 
+        protected abstract int EntetiesCount { get; }
+
         protected virtual void OnLivingEntityDataChanged()
         {
-
         }
 
         protected interface IDrawer
@@ -278,6 +294,13 @@ namespace GP4
 
         protected virtual void PerformOnGUI(IDrawer drawer)
         {
+            drawer.DrawStatFrame(4);
+            drawer.DrawStat(0, "Entities: " + EntetiesCount);
+            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
+            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
+            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
+
+            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
     }
 

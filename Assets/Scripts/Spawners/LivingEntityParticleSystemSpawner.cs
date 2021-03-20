@@ -10,21 +10,6 @@ namespace GP4
     public class LivingEntityParticleSystemSpawner : BaseSpawner
     {
 
-        #region Inspector
-
-        public int numberOfEntities = 10;
-
-        public float entetiesReferenceSpeed = 5f;
-
-        public float entetiesReferenceScale = 0.5f;
-
-        [Range(0, 1f)]
-        public float entetiesReferenceAlpha = 1f;
-
-        public bool useGizmos = true;
-
-        #endregion
-
         ParticleSystem _particleSystem;
 
         ParticleSystemRenderer _particleSystemRenderer;
@@ -238,19 +223,13 @@ namespace GP4
             _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
         }
 
+        protected override int EntetiesCount => _particleSystem.particleCount;
+
         protected override void PerformOnGUI(IDrawer drawer)
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawStatFrame(4);
-            drawer.DrawStat(0, "Entities: " + _particleSystem.particleCount);
-            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
-            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
-            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
-
             drawer.DrawName("Using Shuriken (the default, CPU-based Unity particle system)");
-
-            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
     }
 

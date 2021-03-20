@@ -10,10 +10,9 @@ namespace GP4
     {
         #region Inspector
 
+        [Header("Basic Spawner Settings")]
         [SerializeField]
         LivingEntity _LivingEntityPrefab;
-
-        public int numberOfEntities = 10;
 
         #endregion
 
@@ -95,9 +94,11 @@ namespace GP4
             }
         }
 
+        protected override int EntetiesCount => _numberOfEntitiesAlive;
+
         protected override void PerformOnGUI(IDrawer drawer)
         {
-            base.PerformOnGUI(drawer);
+            // base.PerformOnGUI(drawer);
 
             drawer.DrawStatFrame(1);
             drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
