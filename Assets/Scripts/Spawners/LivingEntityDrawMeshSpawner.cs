@@ -48,7 +48,7 @@ namespace GP4
                 _propertyBlock.SetColor(ColorId, data.Color);
                 Graphics.DrawMesh(
                     _mesh,
-                    Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.scale * data.scaleFactor),
+                    Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.Scale),
                     _material,
                     0,
                     camera,

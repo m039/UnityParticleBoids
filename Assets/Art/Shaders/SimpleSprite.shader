@@ -85,8 +85,6 @@ Shader "Unlit/SimpleSprite"
 #ifdef USE_IN_PARTICLE
                 UNITY_PARTICLE_INSTANCE_DATA data = unity_ParticleInstanceData[unity_InstanceID];
 
-                o.color.a = data.custom1.w;
-
                 vertInstancingColor(o.color);
                 vertInstancingUVs(v.uv, o.uv);
 #endif

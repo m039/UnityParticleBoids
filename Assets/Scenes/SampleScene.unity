@@ -632,7 +632,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc92d484bd0fd2a40aa44fed0dbc8710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 2000
+  numberOfEntities: 20000
   entetiesReferenceSpeed: 0.32
   entetiesReferenceScale: 0.23
   entetiesReferenceAlpha: 0.923

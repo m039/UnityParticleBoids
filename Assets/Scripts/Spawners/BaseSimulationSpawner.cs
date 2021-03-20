@@ -269,6 +269,14 @@ namespace GP4
                 __id = _sId++;
             }
 
+            public Vector2 Scale
+            {
+                get
+                {
+                    return scale * scaleFactor;
+                }
+            }
+
             public Color Color
             {
                 get

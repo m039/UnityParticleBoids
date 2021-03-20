@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using m039.Common;
@@ -7,182 +5,60 @@ using m039.Common;
 namespace GP4
 {
 
-    public class LivingEntityParticleSystemSpawner : BaseSpawner
+    public class LivingEntityParticleSystemSpawner : BaseSimulationSpawner
     {
-
         ParticleSystem _particleSystem;
 
         ParticleSystemRenderer _particleSystemRenderer;
 
-        List<Vector4> _psCustomData = new List<Vector4>();
+        ParticleSystem.Particle[] _particles;
 
-        ParticleSystem.Particle[] _psParticles;
-
-        void Awake()
+        protected override void OnEnable()
         {
-            UpdateParameters();
-        }
+            base.OnEnable();
 
-        void Start()
-        {
             OnLivingEntityDataChanged();
         }
 
-        void OnValidate()
+        protected override void OnInitSimulation()
         {
-            UpdateParameters();
-        }
+            _particleSystem = GetComponent<ParticleSystem>();
 
-        void LateUpdate()
-        {
-            UpdateParameters();
-            KeepParticlesToMax();
-            UpdateParticles();
-        }
-
-        void UpdateParticles()
-        {
-            InitIfNeeded();
-
-            var count = _particleSystem.GetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
-            _particleSystem.GetParticles(_psParticles, count);
-
-            for (int i = 0; i < count; i++)
-            {
-                if (_psCustomData[i].x == 0.0f)
-                {
-                    InitParticle(i);
-                }
-
-                UpdateParticle(i);
-            }
-
-            _particleSystem.SetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
-            _particleSystem.SetParticles(_psParticles);
-        }
-
-        void InitParticle(int particleIndex)
-        {
-            Vector3 getPosition(Vector2 normalizedPosition)
-            {
-                var center = GameScene.Instance.SceneBounds.center;
-                var size = GameScene.Instance.SceneBounds.size;
-                size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
-                return center + size;
-            }
-
-            var particle = _psParticles[particleIndex];
-
-            var initData = Context.LivingEntityConfig.GetData();
-
-            particle.rotation = initData.rotation;
-            particle.startColor = initData.color;
-            particle.velocity = Quaternion.AngleAxis(initData.rotation, Vector3.forward) * Vector3.up * initData.speed;
-            particle.startLifetime = particle.remainingLifetime = 1000f;
-            particle.startSize3D = initData.scale * entetiesReferenceScale;
-            particle.position = getPosition(initData.position).WithZ(-initData.layer);
-
-            _psParticles[particleIndex] = particle;
-
-            _psCustomData[particleIndex] = new Vector4(1, initData.radius, 0, 0); // Mark as processed.
-        }
-
-        void UpdateParticle(int particleIndex)
-        {
-            var particle = _psParticles[particleIndex];
-            var radius = _psCustomData[particleIndex][1];
-
-            // Update the particle data.
-
-            if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, radius))
-            {
-                particle.remainingLifetime = 0f;
-
-                _psParticles[particleIndex] = particle;
-            }
-
-            // Update the custom data.
-            var custom = _psCustomData[particleIndex];
-            var alpha = custom[2];
-
-            if (alpha < 1)
-            {
-                custom[2] = alpha = Mathf.Clamp(alpha + Time.deltaTime * LivingEntityDrawMeshSpawner.AlphaFadeOutSpeed, 0, 1);
-            }
-
-            custom[3] = alpha * entetiesReferenceAlpha;
-
-            _psCustomData[particleIndex] = custom;
-        }
-
-        void UpdateParameters()
-        {
-            InitIfNeeded();
+            _particleSystemRenderer = GetComponent<ParticleSystemRenderer>();
 
             var main = _particleSystem.main;
 
             main.maxParticles = numberOfEntities;
 
-            var velocityOverLifetime = _particleSystem.velocityOverLifetime;
+            if (_particles == null || _particles.Length != _particleSystem.main.maxParticles)
+            {
+                _particles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
+            }
 
-            velocityOverLifetime.speedModifierMultiplier = entetiesReferenceSpeed;
+            _particleSystem.Clear();
         }
 
-        void InitIfNeeded()
+        protected override void OnDrawSimulation()
         {
-            if (_particleSystem == null)
+            int i = 0;
+
+            foreach (var entityData in Simulation.Enteties)
             {
-                _particleSystem = GetComponent<ParticleSystem>();
+                var particle = _particles[i];
+
+                particle.rotation = entityData.rotation;
+                particle.startColor = entityData.Color;
+                particle.velocity = Vector3.zero;
+                particle.startLifetime = particle.remainingLifetime = 1000f;
+                particle.startSize3D = entityData.Scale;
+                particle.position = ((Vector3)entityData.position).WithZ(-entityData.layer);
+
+                _particles[i] = particle;
+
+                i++;
             }
 
-            if (_particleSystemRenderer == null)
-            {
-                _particleSystemRenderer = GetComponent<ParticleSystemRenderer>();
-            }
-
-            if (_psParticles == null || _psParticles.Length != _particleSystem.main.maxParticles)
-            {
-                _psParticles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
-                _particleSystem.Clear();
-            }
-        }
-
-        void KeepParticlesToMax()
-        {
-            if (_particleSystem.particleCount < numberOfEntities)
-            {
-                var p = new ParticleSystem.EmitParams()
-                {
-                    startLifetime = 0.01f
-                };
-                _particleSystem.Emit(p, numberOfEntities - _particleSystem.particleCount);
-            }
-        }
-
-        private void OnDrawGizmosSelected()
-        {
-            if (!useGizmos)
-                return;
-
-            InitIfNeeded();
-
-            var count = _particleSystem.GetCustomParticleData(_psCustomData, ParticleSystemCustomData.Custom1);
-            _particleSystem.GetParticles(_psParticles, count);
-
-            for (int i = 0; i < count; i++) {
-                var particle = _psParticles[i];
-                var radius = _psCustomData[i][1];
-
-                var color = Color.blue.WithAlpha(0.5f);
-
-                if (!Physics2DUtils.CircleWithin(GameScene.Instance.SceneBounds, particle.position + transform.position, radius))
-                {
-                    color = Color.yellow.WithAlpha(0.5f);
-                }
-
-                Gizmos.color = color;
-                Gizmos.DrawWireSphere(_psParticles[i].position + transform.position, radius);
-            }
+            _particleSystem.SetParticles(_particles);
         }
 
         public override void OnSpawnerSelected()

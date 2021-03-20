@@ -7,7 +7,7 @@ Shader "Unlit/OneMeshSprite"
     SubShader
     {
         Tags {
-            "Queue" = "Opaque"
+            "Queue" = "Transparent"
             "RenderType" = "Transparent"
             "IgnoreProjector" = "True"
             "PreviewType" = "Plane"
