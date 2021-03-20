@@ -1,7 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using m039.Common;
+
+using LivingEntetyData = GP4.LivingEntityDrawMeshSpawner.LivingEntityData;
+using LivingEntitySimulation = GP4.LivingEntityDrawMeshSpawner.LivingEntitySimulation;
+using System.Collections.Generic;
 
 namespace GP4
 {
@@ -16,96 +18,140 @@ namespace GP4
 
         #endregion
 
-        int _numberOfEntitiesAlive = 0;
+        LivingEntitySimulation _simulation;
+
+        LivingEntity[] _livingEntities;
+
+        int _previousNumberOfEntities = -1;
 
         GameObject _parent;
 
-        readonly List<LivingEntity> _entitiesCache = new List<LivingEntity>(4000);
-
-        void CreateLivingEntity()
+        protected override void OnEnable()
         {
-            while (_numberOfEntitiesAlive < numberOfEntities)
-            {
-                CreateEntityOrGetFromCache();
-                
-                _numberOfEntitiesAlive++;
-            }
+            base.OnEnable();
+
+            Init();
         }
 
-        LivingEntity CreateEntityOrGetFromCache()
+        void LateUpdate()
         {
-            if (_parent == null)
+            UpdateSimulation();
+            PrePareForDrawing();
+        }
+
+        void Init()
+        {
+            /// Create simulation
+
+            _simulation = new LivingEntitySimulation()
             {
+                entetiesReferenceScale = () => entetiesReferenceScale,
+                entetiesReferenceAlpha = () => entetiesReferenceAlpha,
+                entetiesReferenceSpeed = () => entetiesReferenceSpeed
+            };
+
+            // Create gameObjects
+
+            var cache = new List<Transform>(); // Reuse gameobjects from the parent.
+
+            if (_parent != null)
+            {
+                for (int i = 0; i < _parent.transform.childCount; i++)
+                {
+                    cache.Add(_parent.transform.GetChild(i));
+                }
+                _parent.transform.DetachChildren();
+            } else {
                 _parent = new GameObject("LivingEntitySpawner".Decorate());
+                _parent.transform.SetParent(transform, true);
             }
 
-            Vector3 getPosition()
+            if (_livingEntities == null || _livingEntities.Length != numberOfEntities)
             {
-                var center = GameScene.Instance.SceneBounds.center;
-                var size = GameScene.Instance.SceneBounds.size;
-                size = new Vector3(Random.Range(-0.5f, 0.5f) * size.x, Random.Range(-0.5f, 0.5f) * size.y);
-                return center + size;
+                _livingEntities = new LivingEntity[numberOfEntities];
             }
 
-            LivingEntity entity;
+            var sprite = Context.LivingEntityConfig.GetData().sprite;
 
-            if (_entitiesCache.Count > 0)
+            for (int i = 0; i < numberOfEntities; i++)
             {
-                // Take from the cache.
+                LivingEntity entity;
 
-                entity = _entitiesCache[_entitiesCache.Count - 1];
-                _entitiesCache.RemoveAt(_entitiesCache.Count - 1);
+                if (cache.Count > 0)
+                {
+                    entity = cache[cache.Count - 1].GetComponent<LivingEntity>();
+                    cache.RemoveAt(cache.Count - 1);
+                } else
+                {
+                    entity = LivingEntity.Create(_LivingEntityPrefab);
+                }
 
-                entity.transform.position = getPosition();
-                entity.speed = Random.Range(1, 10);
-                entity.gameObject.SetActive(true);
-            } else
-            {
-                // Create a new one.
-
-                entity = LivingEntity.Create(_LivingEntityPrefab, getPosition(), Random.Range(1, 10));
-                entity.onGoOffScreen += () => OnGoOffScreen(entity);
                 entity.transform.SetParent(_parent.transform, true);
+                entity.Sprite = sprite;
+                _livingEntities[i] = entity;
             }
 
-            return entity;
+            foreach (var c in cache)
+            {
+                Destroy(c.gameObject);
+            }
         }
 
-        void OnGoOffScreen(LivingEntity entity)
+        void UpdateSimulation()
         {
-            _numberOfEntitiesAlive--;
-            entity.gameObject.SetActive(false);
-            _entitiesCache.Add(entity);
-            CreateLivingEntity();
+            // Do physics with enteties.
+            _simulation.Update(Context.LivingEntityConfig);
+
+            // Reset the simulation when needed.
+            if (_previousNumberOfEntities != numberOfEntities)
+            {
+                Init();
+                _previousNumberOfEntities = numberOfEntities;
+            }
+
+            // Create all enteties data if needed.
+            _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
+        }
+
+        void PrePareForDrawing()
+        {
+            int i = 0;
+
+            foreach (var entityData in _simulation.Enteties)
+            {
+                var livingEntity = _livingEntities[i++];
+
+                livingEntity.Color = entityData.Color;
+                livingEntity.transform.position = ((Vector3)entityData.position).WithZ(-entityData.layer);
+                livingEntity.transform.localScale = entityData.scale;
+            }
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            if (!useGizmos)
+                return;
+
+            if (Application.isPlaying)
+                _simulation.DrawGizmos();
         }
 
         public override void OnSpawnerSelected()
         {
-            Invoke(nameof(CreateLivingEntity), 0.01f);
         }
 
         public override void OnSpawnerDeselected()
         {
-            if (_parent != null)
-            {
-                Destroy(_parent);
-                _parent = null;
-                _numberOfEntitiesAlive = 0;
-            }
+            _livingEntities = null;
         }
 
-        protected override int EntetiesCount => _numberOfEntitiesAlive;
+        protected override int EntetiesCount => _parent.transform.childCount;
 
         protected override void PerformOnGUI(IDrawer drawer)
         {
-            // base.PerformOnGUI(drawer);
-
-            drawer.DrawStatFrame(1);
-            drawer.DrawStat(0, "Enteties: " + _numberOfEntitiesAlive);
+            base.PerformOnGUI(drawer);
 
             drawer.DrawName("Each entety is a living GameObject");
-
-            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
         }
     }
 

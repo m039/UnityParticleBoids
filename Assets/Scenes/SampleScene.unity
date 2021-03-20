@@ -187,7 +187,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &188987924
 Transform:
   m_ObjectHideFlags: 0
@@ -248,7 +248,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d491769096496447856fbc6c55b0a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SelectedType: 2
+  _SelectedType: 0
   _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
@@ -5425,7 +5425,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1605227172
 Transform:
   m_ObjectHideFlags: 0
@@ -5452,5 +5452,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76c08e4c8f4efb5468b9d9aa1332499b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  numberOfEntities: 8000
+  entetiesReferenceSpeed: 2.06
+  entetiesReferenceScale: 1.11
+  entetiesReferenceAlpha: 1
+  useGizmos: 0
   _LivingEntityPrefab: {fileID: 1039452408459982533, guid: a9e83c0285b0a87449b445e9566554d0, type: 3}
-  numberOfEntities: 2000
