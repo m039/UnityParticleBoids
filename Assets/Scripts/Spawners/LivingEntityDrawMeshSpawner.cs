@@ -32,9 +32,9 @@ namespace GP4
 
         LivingEntitySimulation _simulation;
 
-        Mesh _bigTrianlgeMesh;
+        Mesh _mesh;
 
-        Material _bigTriangleMaterial;
+        Material _material;
 
         MaterialPropertyBlock _propertyBlock;
 
@@ -62,16 +62,17 @@ namespace GP4
             var entityData = Context.LivingEntityConfig.GetData();
             var sprite = entityData.sprite;
 
-            _bigTrianlgeMesh = new Mesh();
-            _bigTrianlgeMesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
-            _bigTrianlgeMesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
-            _bigTrianlgeMesh.uv = sprite.uv;
-            _bigTrianlgeMesh.colors = Enumerable.Repeat(Color.white, _bigTrianlgeMesh.vertices.Length).ToArray();
+            _mesh = new Mesh();
+            _mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            _mesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
+            _mesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
+            _mesh.uv = sprite.uv;
+            _mesh.colors = Enumerable.Repeat(Color.white, _mesh.vertices.Length).ToArray();
 
-            _bigTriangleMaterial = new Material(Shader.Find("Unlit/SimpleSprite"));
-            _bigTriangleMaterial.enableInstancing = true;
-            _bigTriangleMaterial.mainTexture = sprite.texture;
-            _bigTriangleMaterial.color = Color.white;
+            _material = new Material(Shader.Find("Unlit/SimpleSprite"));
+            _material.enableInstancing = true;
+            _material.mainTexture = sprite.texture;
+            _material.color = Color.white;
 
             _propertyBlock = new MaterialPropertyBlock();
         }
@@ -87,27 +88,21 @@ namespace GP4
         {
             var camera = Camera.main;
 
-            for (int i = 0; i < Context.LivingEntityConfig.NumberOfLayers; i++)
+            foreach (var data in _simulation.Enteties)
             {
-                foreach (var data in _simulation.Enteties)
-                {
-                    if (data.layer != i)
-                        continue;
-
-                    _propertyBlock.SetColor(ColorId, data.Color);
-                    Graphics.DrawMesh(
-                        _bigTrianlgeMesh,
-                        Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.scale * data.scaleFactor),
-                        _bigTriangleMaterial,
-                        0,
-                        camera,
-                        0,
-                        _propertyBlock,
-                        false,
-                        false,
-                        false
-                        );
-                }
+                _propertyBlock.SetColor(ColorId, data.Color);
+                Graphics.DrawMesh(
+                    _mesh,
+                    Matrix4x4.TRS(data.position, Quaternion.AngleAxis(data.rotation, Vector3.forward), data.scale * data.scaleFactor),
+                    _material,
+                    0,
+                    camera,
+                    0,
+                    _propertyBlock,
+                    false,
+                    false,
+                    false
+                    );
             }
         }
 
@@ -176,7 +171,9 @@ namespace GP4
                 }
             }
 
-            readonly SortedSet<LivingEntityData> _enteties = new SortedSet<LivingEntityData>(new LivingEntityDataComparer());
+            readonly static LivingEntityDataComparer _sEntetiesComparer = new LivingEntityDataComparer();
+
+            readonly List<LivingEntityData> _enteties = new List<LivingEntityData>();
 
             public GetSettingValue<float> entetiesReferenceScale = () => 1.0f;
 
@@ -186,7 +183,7 @@ namespace GP4
 
             public GetSettingValue<Bounds> sceneBounds => () => GameScene.Instance.SceneBounds;
 
-            public SortedSet<LivingEntityData> Enteties => _enteties;
+            public List<LivingEntityData> Enteties => _enteties;
 
             public void Populate(int numberOfEntities, BaseLivingEntityConfig entetyConfig)
             {
@@ -227,8 +224,6 @@ namespace GP4
                 entityData.alpha = 0f;
             }
 
-            readonly List<LivingEntityData> _reorderCache = new List<LivingEntityData>();
-
             public void Update(BaseLivingEntityConfig entityConfig)
             {
                 var tSceneBounds = sceneBounds();
@@ -256,23 +251,16 @@ namespace GP4
                     return Physics2DUtils.CircleWithin(tSceneBounds, data.position, boundRadius);
                 }
 
-                _reorderCache.Clear();
-
-                foreach (var entityData in _enteties)
+                for (int i = 0; i < _enteties.Count; i++)
                 {
+                    var entityData = _enteties[i];
+
                     if (!updateEntity(entityData)) {
-                        _reorderCache.Add(entityData);
+                        CreateOrReinitLivingEntityData(entityConfig, ref entityData);
                     }
                 }
 
-                for (int i = 0; i < _reorderCache.Count; i++)
-                {
-                    var entityData = _reorderCache[i];
-
-                    _enteties.Remove(entityData);
-                    CreateOrReinitLivingEntityData(entityConfig, ref entityData);
-                    _enteties.Add(entityData);
-                }
+                _enteties.Sort(_sEntetiesComparer);
             }
 
             public void DrawGizmos()

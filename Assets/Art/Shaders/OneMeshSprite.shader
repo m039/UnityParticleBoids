@@ -7,18 +7,16 @@ Shader "Unlit/OneMeshSprite"
     SubShader
     {
         Tags {
-            "Queue" = "Transparent"
+            "Queue" = "Opaque"
             "RenderType" = "Transparent"
             "IgnoreProjector" = "True"
             "PreviewType" = "Plane"
             "CanUseSpriteAtlas" = "True"
         }
 
-        LOD 200
 
         Cull Off
         Lighting Off
-        ZWrite Off
 
         Blend One OneMinusSrcAlpha
 
@@ -49,7 +47,8 @@ Shader "Unlit/OneMeshSprite"
             float4 _MainTex_ST;
 
             float4 gamma2Linear(float4 c) {
-                return pow(c, 2.2);
+                c.rgb = pow(c.rgb, 2.2);
+                return c;
             }
 
             v2f vert (appdata v)

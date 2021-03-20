@@ -66,6 +66,7 @@ namespace GP4
             _meshTool.PopulateInit(sprite, _triangles, _uv);
 
             _mesh = new Mesh();
+            _mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             _mesh.vertices = _vertices;
             _mesh.uv = _uv;
             _mesh.colors = _colors;
@@ -172,8 +173,6 @@ namespace GP4
         {
             Vector2[] _spriteVertices;
 
-            ushort[] _spriteTriangles;
-
             public void PopulateInit(Sprite sprite, int[] triangles, Vector2[] uv)
             {
                 var position = 0;
@@ -202,39 +201,10 @@ namespace GP4
                 }
 
                 _spriteVertices = sprite.vertices;
-                _spriteTriangles = tTriangles;
-            }
-
-            SortedSet<KeyValuePair<int, int>> _order;
-
-            class OrderComparer : IComparer<KeyValuePair<int, int>>
-            {
-                public int Compare(KeyValuePair<int, int> pair1, KeyValuePair<int, int> pair2)
-                {
-                    var compare = pair1.Key.CompareTo(pair2.Key);
-                    if (compare == 0)
-                    {
-                        return pair1.Value.CompareTo(pair2.Value);
-                    } else
-                    {
-                        return compare;
-                    }
-                }
             }
 
             public void PopulateEntity(int index, LivingEntetyData data, Vector3[] vertices, Color[] colors)
             {
-                if (_order == null || index == 0)
-                {
-                    if (_order == null)
-                    {
-                        _order = new SortedSet<KeyValuePair<int, int>>(new OrderComparer());
-                    } else
-                    {
-                        _order.Clear();
-                    }
-                }
-
                 // Vertex
 
                 var rotation = Quaternion.AngleAxis(data.rotation, Vector3.forward);
@@ -256,29 +226,6 @@ namespace GP4
                 colors[index * 4 + 1] = data.Color;
                 colors[index * 4 + 2] = data.Color;
                 colors[index * 4 + 3] = data.Color;
-
-                // Order
-
-                //_order.Add(new KeyValuePair<int, int>(data.layer, index));
-            }
-
-            public void PopulateTriangles(int[] triangles)
-            {
-                var i = 0;
-
-                foreach (var pair in _order)
-                {
-                    var position = pair.Value * 4;
-
-                    triangles[i + 0] = position + _spriteTriangles[0];
-                    triangles[i + 1] = position + _spriteTriangles[1];
-                    triangles[i + 2] = position + _spriteTriangles[2];
-                    triangles[i + 3] = position + _spriteTriangles[3];
-                    triangles[i + 4] = position + _spriteTriangles[4];
-                    triangles[i + 5] = position + _spriteTriangles[5];
-
-                    i += 6;
-                }
             }
         }
     }
