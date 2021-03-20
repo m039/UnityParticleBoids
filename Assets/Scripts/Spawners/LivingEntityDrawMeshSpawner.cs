@@ -78,7 +78,7 @@ namespace GP4
 
         void LateUpdate()
         {
-            _simulation.Update();
+            _simulation.Update(Context.LivingEntityConfig);
             _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
             DrawEnteties();
         }
@@ -152,9 +152,31 @@ namespace GP4
 
         public class LivingEntitySimulation
         {
-            readonly LinkedList<LivingEntityData> _enteties = new LinkedList<LivingEntityData>();
+            class LivingEntityDataComparer : IComparer<LivingEntityData>
+            {
+                public int Compare(LivingEntityData x, LivingEntityData y)
+                {
+                    if (x == null && y != null)
+                        return -1;
 
-            readonly Queue<LivingEntityData> _entetiesCache = new Queue<LivingEntityData>();
+                    if (x != null && y == null)
+                        return 1;
+
+                    if (x == null && y == null)
+                        return 0;
+
+                    var compare = x.layer.CompareTo(y.layer) ;
+                    if (compare == 0)
+                    {
+                        return x.__id.CompareTo(y.__id);
+                    } else
+                    {
+                        return compare;
+                    }
+                }
+            }
+
+            readonly SortedSet<LivingEntityData> _enteties = new SortedSet<LivingEntityData>(new LivingEntityDataComparer());
 
             public GetSettingValue<float> entetiesReferenceScale = () => 1.0f;
 
@@ -164,17 +186,20 @@ namespace GP4
 
             public GetSettingValue<Bounds> sceneBounds => () => GameScene.Instance.SceneBounds;
 
-            public LinkedList<LivingEntityData> Enteties => _enteties;
+            public SortedSet<LivingEntityData> Enteties => _enteties;
 
-            public void Populate(int numberOfEntities, BaseLivingEntityData entetyData)
+            public void Populate(int numberOfEntities, BaseLivingEntityConfig entetyConfig)
             {
+
                 while (_enteties.Count < numberOfEntities)
                 {
-                    _enteties.AddLast(CreateLivingEntityData(entetyData));
+                    LivingEntityData entityData = null;
+                    CreateOrReinitLivingEntityData(entetyConfig, ref entityData);
+                    _enteties.Add(entityData);
                 }
             }
 
-            LivingEntityData CreateLivingEntityData(BaseLivingEntityData entetyData)
+            void CreateOrReinitLivingEntityData(BaseLivingEntityConfig entetyConfig, ref LivingEntityData entityData)
             {
                 Vector3 getPosition(Vector2 normalizedPosition)
                 {
@@ -185,19 +210,12 @@ namespace GP4
                     return center + size;
                 }
 
-                LivingEntityData entityData;
-
-                // Use cache
-                if (_entetiesCache.Count > 0)
-                {
-                    entityData = _entetiesCache.Dequeue();
-                }
-                else
+                if (entityData == null)
                 {
                     entityData = new LivingEntityData();
-                }
+                }               
 
-                var initData = entetyData.GetData();
+                var initData = entetyConfig.GetData();
 
                 entityData.position = getPosition(initData.position);
                 entityData.rotation = initData.rotation;
@@ -207,11 +225,11 @@ namespace GP4
                 entityData.layer = initData.layer;
                 entityData.radius = initData.radius;
                 entityData.alpha = 0f;
-
-                return entityData;
             }
 
-            public void Update()
+            readonly List<LivingEntityData> _reorderCache = new List<LivingEntityData>();
+
+            public void Update(BaseLivingEntityConfig entityConfig)
             {
                 var tSceneBounds = sceneBounds();
                 var deltaTime = Time.deltaTime;
@@ -238,20 +256,22 @@ namespace GP4
                     return Physics2DUtils.CircleWithin(tSceneBounds, data.position, boundRadius);
                 }
 
-                var node = _enteties.First;
+                _reorderCache.Clear();
 
-                while (node != null)
+                foreach (var entityData in _enteties)
                 {
-                    var next = node.Next;
-
-                    // True to keep the variable.
-                    if (!updateEntity(node.Value))
-                    {
-                        _enteties.Remove(node);
-                        _entetiesCache.Enqueue(node.Value);
+                    if (!updateEntity(entityData)) {
+                        _reorderCache.Add(entityData);
                     }
+                }
 
-                    node = next;
+                for (int i = 0; i < _reorderCache.Count; i++)
+                {
+                    var entityData = _reorderCache[i];
+
+                    _enteties.Remove(entityData);
+                    CreateOrReinitLivingEntityData(entityConfig, ref entityData);
+                    _enteties.Add(entityData);
                 }
             }
 
@@ -289,12 +309,13 @@ namespace GP4
             public void Reset()
             {
                 _enteties.Clear();
-                _entetiesCache.Clear();
             }
         }
 
         public class LivingEntityData
         {
+            static Int64 _sId = 0;
+
             public Vector2 position;
 
             public float rotation;
@@ -314,6 +335,13 @@ namespace GP4
             public int layer;
 
             public float radius;
+
+            internal Int64 __id;
+
+            public LivingEntityData()
+            {
+                __id = _sId++;
+            }
 
             public Color Color
             {

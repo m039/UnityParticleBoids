@@ -169,7 +169,7 @@ MonoBehaviour:
   numberOfEntities: 8000
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
-  entetiesReferenceAlpha: 0.822
+  entetiesReferenceAlpha: 1
   useGizmos: 0
 --- !u!1 &188987923
 GameObject:
@@ -214,10 +214,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e40379e848d38164c81f09ea4a25f1f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  numberOfEntities: 10
+  numberOfEntities: 8000
   entetiesReferenceSpeed: 2.06
   entetiesReferenceScale: 1.11
-  entetiesReferenceAlpha: 0.822
+  entetiesReferenceAlpha: 1
   useGizmos: 0
 --- !u!1 &676004603
 GameObject:
@@ -249,7 +249,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _SelectedType: 2
-  _LivingEntityData: {fileID: 11400000, guid: e7b6680f8a003ea459621aa949065aa7, type: 2}
+  _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
 Transform:

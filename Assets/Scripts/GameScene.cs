@@ -23,7 +23,7 @@ namespace GP4
         SpawnerType _SelectedType = SpawnerType.Basic;
 
         [SerializeField]
-        BaseLivingEntityData _LivingEntityData;
+        BaseLivingEntityConfig _LivingEntityData;
 
         [SerializeField]
         bool _GUIVisibility = true;
@@ -40,7 +40,7 @@ namespace GP4
             }
         }
 
-        public BaseLivingEntityData LivingEntityConfig => _LivingEntityData;
+        public BaseLivingEntityConfig LivingEntityConfig => _LivingEntityData;
 
         public bool GUIVisibility => _GUIVisibility;
 
@@ -54,7 +54,7 @@ namespace GP4
 
         ComboBox _comboBox;
 
-        BaseLivingEntityData _lastLivingEntityData;
+        BaseLivingEntityConfig _lastLivingEntityData;
 
         private void Awake()
         {

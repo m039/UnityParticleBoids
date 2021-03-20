@@ -5,7 +5,7 @@ using UnityEngine;
 namespace GP4
 {
 
-    public abstract class BaseLivingEntityData : ScriptableObject
+    public abstract class BaseLivingEntityConfig : ScriptableObject
     {
         public struct InitData
         {

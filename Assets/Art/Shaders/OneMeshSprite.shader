@@ -14,13 +14,12 @@ Shader "Unlit/OneMeshSprite"
             "CanUseSpriteAtlas" = "True"
         }
 
-        LOD 0
+        LOD 200
 
         Cull Off
-        //ZTest Always
         Lighting Off
         ZWrite Off
-        //Offset 10, 10
+
         Blend One OneMinusSrcAlpha
 
         Pass
@@ -49,13 +48,17 @@ Shader "Unlit/OneMeshSprite"
             sampler2D _MainTex;
             float4 _MainTex_ST;
 
+            float4 gamma2Linear(float4 c) {
+                return pow(c, 2.2);
+            }
+
             v2f vert (appdata v)
             {
                 v2f o;
 
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.color = v.color;
+                o.color = gamma2Linear(v.color);
 
                 return o;
             }

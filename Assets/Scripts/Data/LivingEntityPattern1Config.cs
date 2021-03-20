@@ -6,7 +6,7 @@ namespace GP4
 {
 
     [CreateAssetMenu(menuName = Consts.MenuItemRoot + "/LivingEntityData/Pattern1")]
-    public class LivingEntityPattern1Data : BaseLivingEntityData
+    public class LivingEntityPattern1Config : BaseLivingEntityConfig
     {
         public Sprite sprite;
 

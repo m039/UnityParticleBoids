@@ -7,7 +7,7 @@ namespace GP4
 {
     public interface ISpawnerContext
     {
-        BaseLivingEntityData LivingEntityConfig { get; }
+        BaseLivingEntityConfig LivingEntityConfig { get; }
 
         event System.Action OnLivingEntityDataChanged;
 
