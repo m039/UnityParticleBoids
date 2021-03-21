@@ -238,6 +238,16 @@ namespace GP4
                 };
                 _spawnerComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
                 _spawnerComboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
+            } else
+            {
+                var width = spawnerBoxWidth * UICoeff;
+                var height = UIMediumMargin + UISmallMargin * 2;
+                var x = Screen.width - width - UIMediumMargin;
+                var y = Screen.height - height - UIMediumMargin;
+
+                var rect = new Rect(x, y, width, height);
+
+                _spawnerComboBox.rect = rect;
             }
 
             if (_configComboBox == null)
@@ -285,6 +295,16 @@ namespace GP4
 
                 _configComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
                 _configComboBox.SelectedItemIndex = System.Array.FindIndex(_LivingEntityDatas, (d) => d.Equals(_LivingEntityData));
+            } else
+            {
+                var width = 550 * UICoeff;
+                var height = UIMediumMargin + UISmallMargin * 2;
+                var x = Screen.width - UIMediumMargin - spawnerBoxWidth * UICoeff - UISmallMargin - width;
+                var y = Screen.height - height - UIMediumMargin;
+
+                var rect = new Rect(x, y, width, height);
+
+                _configComboBox.rect = rect;
             }
 
             if (GUIVisibility)

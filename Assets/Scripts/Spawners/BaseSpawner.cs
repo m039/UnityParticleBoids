@@ -73,10 +73,6 @@ namespace GP4
 
             GUIStyle _textStyle;
 
-            Rect _statRect;
-
-            float _offset;
-
             Texture2D _frameTexture;
 
             Font _statFont;
@@ -84,6 +80,8 @@ namespace GP4
             Font _nameFont;
 
             string[] _values = new string[32];
+
+            float _offset;
 
             public Drawer()
             {
@@ -102,16 +100,24 @@ namespace GP4
 
                 _textStyle = new GUIStyle(GUI.skin.textField);
 
-                var windowHeight = 200 * UICoeff;
-                var windowWidth = 800 * UICoeff;
-
-                _statRect = new Rect(Screen.width - windowWidth - UIMediumMargin, UIMediumMargin, windowWidth, windowHeight);
                 _offset = 4 * UICoeff;
+            }
+
+            Rect StatRect
+            {
+                get
+                {
+                    var windowHeight = 200 * UICoeff;
+                    var windowWidth = 800 * UICoeff;
+
+                    return new Rect(Screen.width - windowWidth - UIMediumMargin, UIMediumMargin, windowWidth, windowHeight);
+                }
             }
 
             public void DrawParametersFrame(int numberOfStats)
             {
-                var tRect = new Rect(_statRect);
+                var statRect = StatRect;
+                var tRect = new Rect(statRect);
 
                 _labelStyle.fontSize = (int)(60 * UICoeff);
                 _labelStyle.alignment = TextAnchor.UpperLeft;
@@ -170,6 +176,8 @@ namespace GP4
 
             string DrawStatLabelWithTextField(int index, string label, string textFieldLabel)
             {
+                var statRect = StatRect;
+
                 /// Draw a label
 
                 _labelStyle.fontSize = (int)(60 * UICoeff);
@@ -181,7 +189,7 @@ namespace GP4
 
                 // Draw shadow
 
-                var tRect = new Rect(_statRect);
+                var tRect = new Rect(statRect);
                 tRect.center += Vector2.one * _offset + Vector2.up * topOffset;
 
                 _labelStyle.normal.textColor = Color.black;
@@ -192,7 +200,7 @@ namespace GP4
 
                 _labelStyle.normal.textColor = Color.white;
 
-                tRect = new Rect(_statRect);
+                tRect = new Rect(statRect);
                 tRect.center += Vector2.up * topOffset;
 
                 GUI.Label(tRect, label, _labelStyle);

@@ -22,13 +22,11 @@ Shader "Unlit/SimpleSprite"
         Pass
         {
             CGPROGRAM
-// Upgrade NOTE: excluded shader from OpenGL ES 2.0 because it uses non-square matrices
-#pragma exclude_renderers gles
 
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma target 4.5
+            #pragma target 3.0
             #pragma multi_compile_instancing
             #pragma multi_compile __ USE_IN_PARTICLE
 
