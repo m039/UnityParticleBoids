@@ -1,5 +1,7 @@
 using m039.Common;
 using System.Collections.Generic;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace GP4
@@ -22,6 +24,16 @@ namespace GP4
             base.OnEnable();
 
             InitSimulation();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+
+            if (_simulation != null)
+            {
+                _simulation.Reset();
+            }
         }
 
         void InitSimulation()
@@ -85,7 +97,7 @@ namespace GP4
         {
             readonly static LivingEntityDataComparer _sEntetiesComparer = new LivingEntityDataComparer();
 
-            readonly List<LivingEntityData> _enteties = new List<LivingEntityData>();
+            NativeArray<LivingEntityData> _enteties;
 
             public GetSettingValue<float> entetiesReferenceScale = () => 1.0f;
 
@@ -97,19 +109,25 @@ namespace GP4
 
             public GetSettingValue<bool> useSort = () => false;
 
-            public List<LivingEntityData> Enteties => _enteties;
+            public NativeArray<LivingEntityData> Enteties => _enteties;
 
             public void Populate(int numberOfEntities, BaseLivingEntityConfig entetyConfig)
             {
-                while (_enteties.Count < numberOfEntities)
+                if (!_enteties.IsCreated || _enteties.Length != numberOfEntities)
                 {
-                    LivingEntityData entityData = null;
-                    CreateOrReinitLivingEntityData(entetyConfig, ref entityData);
-                    _enteties.Add(entityData);
+                    if (_enteties.IsCreated)
+                        _enteties.Dispose();
+
+                    _enteties = new NativeArray<LivingEntityData>(numberOfEntities, Allocator.Persistent);
+
+                    for (int i = 0; i < _enteties.Length; i++)
+                    {
+                        _enteties[i] = CreateOrReinitLivingEntityData(entetyConfig);
+                    }
                 }
             }
 
-            void CreateOrReinitLivingEntityData(BaseLivingEntityConfig entetyConfig, ref LivingEntityData entityData)
+            LivingEntityData CreateOrReinitLivingEntityData(BaseLivingEntityConfig entetyConfig)
             {
                 Vector3 getPosition(Vector2 normalizedPosition)
                 {
@@ -120,10 +138,7 @@ namespace GP4
                     return center + size;
                 }
 
-                if (entityData == null)
-                {
-                    entityData = new LivingEntityData();
-                }
+                LivingEntityData entityData = new LivingEntityData();
 
                 var initData = entetyConfig.GetData();
 
@@ -135,22 +150,31 @@ namespace GP4
                 entityData.layer = initData.layer;
                 entityData.radius = initData.radius;
                 entityData.alpha = 0f;
+
+                return entityData;
             }
 
-            public void Update(BaseLivingEntityConfig entityConfig)
+            struct UpdateEntityJobParallel : IJobParallelFor
             {
-                var tSceneBounds = sceneBounds();
-                var deltaTime = Time.deltaTime;
-                var refenceScale = entetiesReferenceScale();
-                var referenceAlpha = entetiesReferenceAlpha();
-                var referenceSpeed = entetiesReferenceSpeed();
+                public Bounds sceneBounds;
 
-                bool updateEntity(LivingEntityData data)
+                public float deltaTime;
+
+                public float referenceScale;
+
+                public float referenceAlpha;
+
+                public float referenceSpeed;
+
+                public NativeArray<LivingEntityData> enteties;
+
+                public void Execute(int index)
                 {
+                    var data = enteties[index];
                     var deltaPosition = (Vector2)(data.Rotation * Vector3.up * data.speed * referenceSpeed * deltaTime);
 
                     data.position += deltaPosition;
-                    data.scaleFactor = refenceScale;
+                    data.scaleFactor = referenceScale;
                     data.alphaFactor = referenceAlpha;
 
                     if (data.alpha < 1)
@@ -160,23 +184,44 @@ namespace GP4
 
                     var boundRadius = data.scaleFactor * data.radius;
 
-                    return Physics2DUtils.CircleWithin(tSceneBounds, data.position, boundRadius);
-                }
+                    data.isDestroyed = !Physics2DUtils.CircleWithin(sceneBounds, data.position, boundRadius);
 
-                for (int i = 0; i < _enteties.Count; i++)
+                    enteties[index] = data;
+                }
+            }
+
+            public void Update(BaseLivingEntityConfig entityConfig)
+            {
+                var tSceneBounds = sceneBounds();
+                var deltaTime = Time.deltaTime;
+                var referenceScale = entetiesReferenceScale();
+                var referenceAlpha = entetiesReferenceAlpha();
+                var referenceSpeed = entetiesReferenceSpeed();
+
+                new UpdateEntityJobParallel
+                {
+                    sceneBounds = sceneBounds(),
+                    deltaTime = Time.deltaTime,
+                    referenceScale = entetiesReferenceScale(),
+                    referenceAlpha = entetiesReferenceAlpha(),
+                    referenceSpeed = entetiesReferenceSpeed(),
+                    enteties = _enteties
+                }.Schedule(_enteties.Length, 1024).Complete();
+
+                for (int i = 0; i < _enteties.Length; i++)
                 {
                     var entityData = _enteties[i];
 
-                    if (!updateEntity(entityData))
+                    if (entityData.isDestroyed)
                     {
-                        CreateOrReinitLivingEntityData(entityConfig, ref entityData);
+                        _enteties[i] = CreateOrReinitLivingEntityData(entityConfig);
                     }
                 }
 
-                if (useSort())
-                {
-                    _enteties.Sort(_sEntetiesComparer);
-                }
+                //if (useSort())
+                //{
+                //    _enteties.Sort(_sEntetiesComparer);
+                //}
             }
 
             public void DrawGizmos()
@@ -212,46 +257,31 @@ namespace GP4
 
             public void Reset()
             {
-                _enteties.Clear();
+                //if (_enteties.IsCreated)
+                //{
+                //    _enteties.Dispose();
+                //    _enteties = default;
+                //}
             }
 
             class LivingEntityDataComparer : IComparer<LivingEntityData>
             {
                 public int Compare(LivingEntityData x, LivingEntityData y)
                 {
-                    if (x == null && y != null)
-                        return -1;
-
-                    if (x != null && y == null)
-                        return 1;
-
-                    if (x == null && y == null)
-                        return 0;
-
-                    var compare = x.layer.CompareTo(y.layer);
-                    if (compare == 0)
-                    {
-                        return x.__id.CompareTo(y.__id);
-                    }
-                    else
-                    {
-                        return compare;
-                    }
+                    return x.layer.CompareTo(y.layer);
                 }
             }
         }
 
-        public class LivingEntityData
+        public struct LivingEntityData
         {
-            static long _sId = 0;
-
             public Vector2 position;
 
             public float rotation;
 
             public Vector2 scale;
 
-            public float scaleFactor = 1f;
+            public float scaleFactor;
 
             public float speed;
 
@@ -259,18 +289,13 @@ namespace GP4
 
             public float alpha;
 
-            public float alphaFactor = 1f;
+            public float alphaFactor;
 
             public int layer;
 
             public float radius;
 
-            internal long __id;
-
-            public LivingEntityData()
-            {
-                __id = _sId++;
-            }
+            public bool isDestroyed;
 
             public Vector3 Position
             {

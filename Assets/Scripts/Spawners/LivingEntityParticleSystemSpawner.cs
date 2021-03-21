@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Linq;
 using m039.Common;
+using Unity.Collections;
+using Unity.Jobs;
 
 namespace GP4
 {
@@ -11,7 +13,7 @@ namespace GP4
 
         ParticleSystemRenderer _particleSystemRenderer;
 
-        ParticleSystem.Particle[] _particles;
+        NativeArray<ParticleSystem.Particle>? _particles;
 
         protected override void OnInitSimulation()
         {
@@ -23,9 +25,12 @@ namespace GP4
 
             main.maxParticles = numberOfEntities;
 
-            if (_particles == null || _particles.Length != _particleSystem.main.maxParticles)
+            if (!_particles.HasValue || _particles.Value.Length != _particleSystem.main.maxParticles)
             {
-                _particles = new ParticleSystem.Particle[_particleSystem.main.maxParticles];
+                if (_particles.HasValue)
+                    _particles.Value.Dispose();
+
+                _particles = new NativeArray<ParticleSystem.Particle>(_particleSystem.main.maxParticles, Allocator.Persistent);
             }
 
             _particleSystem.Clear();
@@ -53,13 +58,17 @@ namespace GP4
             _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
         }
 
-        protected override void OnDrawSimulation()
+        struct CopyMemoryJob : IJobParallelFor
         {
-            int i = 0;
+            [ReadOnly]
+            public NativeArray<LivingEntityData> enteties;
 
-            foreach (var entityData in Simulation.Enteties)
+            public NativeArray<ParticleSystem.Particle> particles;
+
+            public void Execute(int index)
             {
-                var particle = _particles[i];
+                var particle = particles[index];
+                var entityData = enteties[index];
 
                 particle.rotation = entityData.rotation;
                 particle.axisOfRotation = Vector3.forward;
@@ -69,12 +78,19 @@ namespace GP4
                 particle.startSize3D = entityData.Scale;
                 particle.position = entityData.Position;
 
-                _particles[i] = particle;
-
-                i++;
+                particles[index] = particle;
             }
+        }
 
-            _particleSystem.SetParticles(_particles);
+        protected override void OnDrawSimulation()
+        {
+            new CopyMemoryJob
+            {
+                enteties = Simulation.Enteties,
+                particles = _particles.Value
+            }.Schedule(_particles.Value.Length, 1024).Complete();
+
+            _particleSystem.SetParticles(_particles.Value);
         }
 
         protected override void OnEnable()
@@ -90,6 +106,9 @@ namespace GP4
             base.OnDisable();
 
             _particleSystem.Stop();
+
+            _particles.Value.Dispose();
+            _particles = null;
         }
 
         protected override void PerformOnGUI(IDrawer drawer)
