@@ -50,21 +50,19 @@ namespace GP4
             Context = null;    
         }
 
-        protected abstract int EntetiesCount { get; }
-
         protected virtual void OnLivingEntityDataChanged()
         {
         }
 
         protected interface IDrawer
         {
-            void DrawStat(int index, string text);
+            void DrawParametersFrame(int numberOfStats);
 
-            void DrawStatFrame(int numberOfStats);
+            void DrawInfo(string name);
 
-            void DrawName(string name);
+            public void DrawAndGetParameter(int index, string text, ref float value);
 
-            void DrawGetNumber(string label, ref int number);
+            public void DrawAndGetParameter(int index, string text, ref int value);
         }
 
         class Drawer : IDrawer
@@ -84,6 +82,8 @@ namespace GP4
             Font _statFont;
 
             Font _nameFont;
+
+            string[] _values = new string[32];
 
             public Drawer()
             {
@@ -109,25 +109,75 @@ namespace GP4
                 _offset = 4 * UICoeff;
             }
 
-            public void DrawStatFrame(int numberOfStats)
+            public void DrawParametersFrame(int numberOfStats)
             {
                 var tRect = new Rect(_statRect);
 
+                _labelStyle.fontSize = (int)(60 * UICoeff);
+                _labelStyle.alignment = TextAnchor.UpperLeft;
+                _labelStyle.font = _statFont;
+
+                var labelSize = _labelStyle.CalcSize(new GUIContent(" "));
+
                 tRect.x -= UISmallMargin;
                 tRect.y -= UISmallMargin;
-                tRect.height = _labelStyle.fontSize * numberOfStats + 50 * UICoeff * numberOfStats + UISmallMargin;
+                tRect.height = labelSize.y * numberOfStats + UISmallMargin * 2 * numberOfStats;
                 tRect.width += UISmallMargin * 2;
 
                 GUI.Box(tRect, _frameTexture, _frameStyle);
             }
 
-            public void DrawStat(int index, string text)
+            public void DrawAndGetParameter(int index, string text, ref float value)
             {
-                var topOffset = _labelStyle.fontSize * index + 50 * UICoeff * index;
+                DrawAndGetParameter(index, text, ref value, (str, def) => {
+                    if (float.TryParse(str, out float result))
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return def;
+                    }
+                });
+            }
+
+            public void DrawAndGetParameter(int index, string text, ref int value)
+            {
+                DrawAndGetParameter(index, text, ref value, (str, def) => {
+                    if (int.TryParse(str, out int result))
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        return def;
+                    }
+                });
+            }
+
+            void DrawAndGetParameter<T>(int index, string text, ref T value, System.Func<string, T, T> tryParse)
+            {
+                var obj = _values[index];
+                if (obj == null)
+                {
+                    obj = value.ToString();
+                }
+
+                _values[index] = DrawStatLabelWithTextField(index, text, obj);
+
+                value = tryParse(_values[index], value);
+            }
+
+            string DrawStatLabelWithTextField(int index, string label, string textFieldLabel)
+            {
+                /// Draw a label
 
                 _labelStyle.fontSize = (int)(60 * UICoeff);
                 _labelStyle.alignment = TextAnchor.UpperLeft;
                 _labelStyle.font = _statFont;
+
+                var labelSize = _labelStyle.CalcSize(new GUIContent(label));
+                var topOffset = labelSize.y * index + UISmallMargin * 2 * index;
 
                 // Draw shadow
 
@@ -136,7 +186,7 @@ namespace GP4
 
                 _labelStyle.normal.textColor = Color.black;
 
-                GUI.Label(tRect, text, _labelStyle);
+                GUI.Label(tRect, label, _labelStyle);
 
                 // Draw text
 
@@ -145,10 +195,28 @@ namespace GP4
                 tRect = new Rect(_statRect);
                 tRect.center += Vector2.up * topOffset;
 
-                GUI.Label(tRect, text, _labelStyle);
+                GUI.Label(tRect, label, _labelStyle);
+
+                /// Draw a text field
+                ///
+
+                var textFieldWidth = 300 * UICoeff;
+                var textFieldHeight = labelSize.y;
+
+                var textFieldRect = new Rect(
+                    Screen.width - textFieldWidth - UIMediumMargin, UIMediumMargin + topOffset,
+                    textFieldWidth, textFieldHeight
+                    );
+
+                _textStyle.fontSize = (int)(60 * UICoeff);
+                _textStyle.alignment = TextAnchor.MiddleLeft;
+                _textStyle.font = _statFont;
+                _textStyle.padding.left = _textStyle.padding.right = _textStyle.padding.top = _textStyle.padding.bottom = (int)UISmallPadding;
+
+                return GUI.TextField(textFieldRect, textFieldLabel, 10, _textStyle);
             }
 
-            public void DrawName(string name)
+            public void DrawInfo(string name)
             {
                 var marginVertical = UIMediumMargin * 2;
                 var marginHorizontal = UIMediumMargin;
@@ -181,77 +249,6 @@ namespace GP4
 
                 GUI.Label(tRect, name, _labelStyle);
             }
-
-            string _numberText;
-
-            public void DrawGetNumber(string label, ref int number)
-            {
-                var topOffset = 800 * UICoeff;
-                var margin = UISmallMargin;
-                var labelSize = _labelStyle.CalcSize(new GUIContent(label));
-
-                /// Draw Frame
-
-                var tRect = new Rect(_statRect);
-
-                tRect.center += Vector2.up * topOffset - Vector2.one * margin;
-                tRect.size = new Vector2(
-                    margin * 2 + _statRect.width,
-                    margin * 3 + UISmallPadding + labelSize.y * 2
-                    );
-
-                GUI.Box(tRect, _frameTexture, _frameStyle);
-
-                /// Label
-
-                _labelStyle.fontSize = (int)(60 * UICoeff);
-                _labelStyle.alignment = TextAnchor.UpperLeft;
-                _labelStyle.font = _statFont;
-
-                // Draw shadow
-
-                tRect = new Rect(_statRect);
-
-                tRect.y += topOffset;
-                tRect.center += Vector2.one * _offset;
-
-                _labelStyle.normal.textColor = Color.black;
-
-                GUI.Label(tRect, label, _labelStyle);
-
-                // Draw text
-
-                _labelStyle.normal.textColor = Color.white;
-
-                tRect = new Rect(_statRect);
-                tRect.y += topOffset;
-
-                GUI.Label(tRect, label, _labelStyle);
-
-                /// Draw textField
-
-                tRect = new Rect(_statRect);
-
-                tRect.y += topOffset + labelSize.y + margin;
-                tRect.height = labelSize.y + UISmallPadding;
-
-                if (_numberText == null || int.TryParse(_numberText, out int result) && result != number) {
-                    _numberText = number.ToString();
-                }
-
-                _textStyle.fontSize = (int)(60 * UICoeff);
-                _textStyle.alignment = TextAnchor.MiddleLeft;
-                _textStyle.font = _statFont;
-                _textStyle.padding.left = _textStyle.padding.right = _textStyle.padding.top = _textStyle.padding.bottom = (int)UISmallPadding;
-
-                var text = GUI.TextField(tRect, _numberText, 10, _textStyle);
-
-                if (int.TryParse(text, out result))
-                {
-                    number = result;
-                    _numberText = text;
-                }
-            }
         }
 
         void OnGUI()
@@ -269,13 +266,12 @@ namespace GP4
 
         protected virtual void PerformOnGUI(IDrawer drawer)
         {
-            drawer.DrawStatFrame(4);
-            drawer.DrawStat(0, "Entities: " + EntetiesCount);
-            drawer.DrawStat(1, "Global Scale: " + entetiesReferenceScale);
-            drawer.DrawStat(2, "Global Alpha: " + entetiesReferenceAlpha);
-            drawer.DrawStat(3, "Global Speed: " + entetiesReferenceSpeed);
+            drawer.DrawParametersFrame(4);
 
-            drawer.DrawGetNumber("Number of Enteties [" + numberOfEntities + "]:", ref numberOfEntities);
+            drawer.DrawAndGetParameter(0, "Entities", ref numberOfEntities);
+            drawer.DrawAndGetParameter(1, "Global Scale", ref entetiesReferenceScale);
+            drawer.DrawAndGetParameter(2, "Global Alpha", ref entetiesReferenceAlpha);
+            drawer.DrawAndGetParameter(3, "Global Speed", ref entetiesReferenceSpeed);
         }
     }
 

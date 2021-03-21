@@ -81,8 +81,6 @@ namespace GP4
                 _simulation.DrawGizmos();
         }
 
-        protected override int EntetiesCount => _simulation.Enteties.Count;
-
         public class LivingEntitySimulation
         {
             readonly static LivingEntityDataComparer _sEntetiesComparer = new LivingEntityDataComparer();

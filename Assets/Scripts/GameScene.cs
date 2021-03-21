@@ -192,7 +192,7 @@ namespace GP4
 
         void OnGUI()
         {
-            const float spawnerBoxWidth = 440f;
+            const float spawnerBoxWidth = 550f;
 
             if (_spawnerComboBox == null)
             {              

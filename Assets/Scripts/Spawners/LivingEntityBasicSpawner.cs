@@ -84,13 +84,11 @@ namespace GP4
             }
         }
 
-        protected override int EntetiesCount => _parent.transform.childCount;
-
         protected override void PerformOnGUI(IDrawer drawer)
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawName("Each entety is a living GameObject");
+            drawer.DrawInfo("Each entety is a living GameObject");
         }
     }
 

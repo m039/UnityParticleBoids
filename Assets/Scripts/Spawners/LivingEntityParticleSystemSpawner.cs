@@ -92,13 +92,11 @@ namespace GP4
             _particleSystem.Stop();
         }
 
-        protected override int EntetiesCount => _particleSystem.particleCount;
-
         protected override void PerformOnGUI(IDrawer drawer)
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawName("Using Shuriken (the default, CPU-based Unity particle system)");
+            drawer.DrawInfo("Using Shuriken (the default, CPU-based Unity particle system)");
         }
     }
 

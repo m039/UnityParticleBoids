@@ -61,7 +61,7 @@ namespace GP4
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawName("Draw each entity with Graphics.DrawMesh");
+            drawer.DrawInfo("Draw each entity with Graphics.DrawMesh");
         }
     }
 

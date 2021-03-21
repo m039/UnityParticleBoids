@@ -81,7 +81,7 @@ namespace GP4
         {
             base.PerformOnGUI(drawer);
 
-            drawer.DrawName("Using one mesh for drawing all enteties");
+            drawer.DrawInfo("Using one mesh for drawing all enteties");
         }
 
         public class MeshTool
