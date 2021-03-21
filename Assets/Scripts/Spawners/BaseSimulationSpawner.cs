@@ -210,7 +210,7 @@ namespace GP4
 
                     Gizmos.color = Color.green;
 
-                    Gizmos.DrawLine(data.Position, (Vector3)data.position + Quaternion.AngleAxis(data.rotation, Vector3.forward) * Vector3.up * boundRadius);
+                    Gizmos.DrawLine(data.Position, (Vector3)data.position + data.Rotation * Vector3.up * boundRadius);
                 }
             }
 

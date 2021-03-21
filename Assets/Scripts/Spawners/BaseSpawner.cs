@@ -101,7 +101,7 @@ namespace GP4
 
             float _offset;
 
-            Texture2D _texture;
+            Texture2D _frameTexture;
 
             Font _statFont;
 
@@ -114,13 +114,13 @@ namespace GP4
                 _statFont = _labelStyle.font;
                 _nameFont = LoadFont(FontCategory.SansSerif, FontStyle.Italic);
 
-                _texture = new Texture2D(1, 1);
-                _texture.wrapMode = TextureWrapMode.Repeat;
-                _texture.SetPixel(0, 0, Color.black.WithAlpha(0.2f));
-                _texture.Apply();
+                _frameTexture = new Texture2D(1, 1);
+                _frameTexture.wrapMode = TextureWrapMode.Repeat;
+                _frameTexture.SetPixel(0, 0, Color.black.WithAlpha(0.2f));
+                _frameTexture.Apply();
 
                 _frameStyle = new GUIStyle();
-                _frameStyle.normal.background = _texture;
+                _frameStyle.normal.background = _frameTexture;
 
                 _textStyle = new GUIStyle(GUI.skin.textField);
 
@@ -140,7 +140,7 @@ namespace GP4
                 tRect.height = _labelStyle.fontSize * numberOfStats + 50 * UICoeff * numberOfStats + UISmallMargin;
                 tRect.width += UISmallMargin * 2;
 
-                GUI.Box(tRect, _texture, _frameStyle);
+                GUI.Box(tRect, _frameTexture, _frameStyle);
             }
 
             public void DrawStat(int index, string text)
@@ -186,7 +186,7 @@ namespace GP4
                 var margin = 32 * UICoeff;
                 var frameRect = new Rect(tRect.x - margin, tRect.y + (marginVertical - size.y) - margin, size.x + margin * 2, size.y + margin * 2);
 
-                GUI.Box(frameRect, _texture, _frameStyle);
+                GUI.Box(frameRect, _frameTexture, _frameStyle);
 
                 // Draw shadow
 
@@ -210,7 +210,6 @@ namespace GP4
             {
                 var topOffset = 800 * UICoeff;
                 var margin = UISmallMargin;
-                var padding = UISmallMargin / 2;
                 var labelSize = _labelStyle.CalcSize(new GUIContent(label));
 
                 /// Draw Frame
@@ -220,10 +219,10 @@ namespace GP4
                 tRect.center += Vector2.up * topOffset - Vector2.one * margin;
                 tRect.size = new Vector2(
                     margin * 2 + _statRect.width,
-                    margin * 3 + padding * 2 + labelSize.y * 2
+                    margin * 3 + UISmallPadding + labelSize.y * 2
                     );
 
-                GUI.Box(tRect, _texture, _frameStyle);
+                GUI.Box(tRect, _frameTexture, _frameStyle);
 
                 /// Label
 
@@ -256,7 +255,7 @@ namespace GP4
                 tRect = new Rect(_statRect);
 
                 tRect.y += topOffset + labelSize.y + margin;
-                tRect.height = labelSize.y + padding * 2;
+                tRect.height = labelSize.y + UISmallPadding;
 
                 if (_numberText == null || int.TryParse(_numberText, out int result) && result != number) {
                     _numberText = number.ToString();
@@ -265,7 +264,7 @@ namespace GP4
                 _textStyle.fontSize = (int)(60 * UICoeff);
                 _textStyle.alignment = TextAnchor.MiddleLeft;
                 _textStyle.font = _statFont;
-                _textStyle.padding.left = _textStyle.padding.right = _textStyle.padding.top = _textStyle.padding.bottom = (int) padding;
+                _textStyle.padding.left = _textStyle.padding.right = _textStyle.padding.top = _textStyle.padding.bottom = (int)UISmallPadding;
 
                 var text = GUI.TextField(tRect, _numberText, 10, _textStyle);
 
