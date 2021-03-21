@@ -33,25 +33,7 @@ namespace GP4
 
         IDrawer _drawer;
 
-        public bool IsSelected { get; private set; } = false;
-
         protected ISpawnerContext Context { get; private set; }
-
-        public void SetSelected(bool selected)
-        {
-            if (!Application.isPlaying)
-                return;
-
-            IsSelected = selected;
-
-            if (selected)
-            {
-                OnSpawnerSelected();
-            } else
-            {
-                OnSpawnerDeselected();
-            }
-        }
 
         protected virtual void OnEnable()
         {
@@ -59,7 +41,7 @@ namespace GP4
             Context.OnLivingEntityDataChanged += OnLivingEntityDataChanged;
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             if (Context == null)
                 return;
@@ -67,10 +49,6 @@ namespace GP4
             Context.OnLivingEntityDataChanged -= OnLivingEntityDataChanged;
             Context = null;    
         }
-
-        public abstract void OnSpawnerSelected();
-
-        public abstract void OnSpawnerDeselected();
 
         protected abstract int EntetiesCount { get; }
 

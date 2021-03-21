@@ -65,15 +65,6 @@ namespace GP4
             _simulation.Populate(numberOfEntities, Context.LivingEntityConfig);
         }
 
-        public override void OnSpawnerSelected()
-        {
-        }
-
-        public override void OnSpawnerDeselected()
-        {
-            _simulation.Reset();
-        }
-
         protected override void OnLivingEntityDataChanged()
         {
             base.OnLivingEntityDataChanged();

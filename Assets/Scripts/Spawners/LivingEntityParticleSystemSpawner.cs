@@ -77,14 +77,18 @@ namespace GP4
             _particleSystem.SetParticles(_particles);
         }
 
-        public override void OnSpawnerSelected()
+        protected override void OnEnable()
         {
+            base.OnEnable();
+
             _particleSystem.Clear();
             _particleSystem.Play();
         }
 
-        public override void OnSpawnerDeselected()
+        protected override void OnDisable()
         {
+            base.OnDisable();
+
             _particleSystem.Stop();
         }
 

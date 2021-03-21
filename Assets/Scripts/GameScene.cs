@@ -121,7 +121,6 @@ namespace GP4
                     if (IsTypeEquals(spawner, _type.Value))
                     {
                         spawner.gameObject.SetActive(true);
-                        spawner.SetSelected(true);
                     } else
                     {
                         spawner.gameObject.SetActive(false);
@@ -139,7 +138,6 @@ namespace GP4
                 {
                     if (IsTypeEquals(spawner, previousType))
                     {
-                        spawner.SetSelected(false);
                         spawner.gameObject.SetActive(false);
                         break;
                     }
@@ -152,7 +150,6 @@ namespace GP4
                     if (IsTypeEquals(spawner, _type.Value))
                     {
                         spawner.gameObject.SetActive(true);
-                        spawner.SetSelected(true);
                     }
                 }
             }

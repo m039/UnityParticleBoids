@@ -84,15 +84,6 @@ namespace GP4
             }
         }
 
-        public override void OnSpawnerSelected()
-        {
-        }
-
-        public override void OnSpawnerDeselected()
-        {
-            _livingEntities = null;
-        }
-
         protected override int EntetiesCount => _parent.transform.childCount;
 
         protected override void PerformOnGUI(IDrawer drawer)
