@@ -112,7 +112,7 @@ namespace GP4
                 _labelStyle = new GUIStyle(GUI.skin.label);
 
                 _statFont = _labelStyle.font;
-                _nameFont = Resources.Load<Font>("CommonUnityLibrary/NormalFont/Roboto-BoldItalic");
+                _nameFont = LoadFont(FontCategory.SansSerif, FontStyle.Italic);
 
                 _texture = new Texture2D(1, 1);
                 _texture.wrapMode = TextureWrapMode.Repeat;
@@ -126,21 +126,19 @@ namespace GP4
 
                 var windowHeight = 200 * UICoeff;
                 var windowWidth = 800 * UICoeff;
-                var margin = 100 * UICoeff;
 
-                _statRect = new Rect(Screen.width - windowWidth - margin, margin, windowWidth, windowHeight);
+                _statRect = new Rect(Screen.width - windowWidth - UIMediumMargin, UIMediumMargin, windowWidth, windowHeight);
                 _offset = 4 * UICoeff;
             }
 
             public void DrawStatFrame(int numberOfStats)
             {
                 var tRect = new Rect(_statRect);
-                var margin = 32 * UICoeff;
 
-                tRect.x -= margin;
-                tRect.y -= margin;
-                tRect.height = _labelStyle.fontSize * numberOfStats + 50 * UICoeff * numberOfStats + margin;
-                tRect.width += margin * 2;
+                tRect.x -= UISmallMargin;
+                tRect.y -= UISmallMargin;
+                tRect.height = _labelStyle.fontSize * numberOfStats + 50 * UICoeff * numberOfStats + UISmallMargin;
+                tRect.width += UISmallMargin * 2;
 
                 GUI.Box(tRect, _texture, _frameStyle);
             }
@@ -174,8 +172,8 @@ namespace GP4
 
             public void DrawName(string name)
             {
-                var marginVertical = 200 * UICoeff;
-                var marginHorizontal = 100 * UICoeff;
+                var marginVertical = UIMediumMargin * 2;
+                var marginHorizontal = UIMediumMargin;
                 var tRect = new Rect(marginHorizontal, Screen.height - (marginHorizontal + marginVertical), 2000 * UICoeff, marginVertical);
 
                 _labelStyle.fontSize = (int)(60 * UICoeff);
@@ -211,8 +209,8 @@ namespace GP4
             public void DrawGetNumber(string label, ref int number)
             {
                 var topOffset = 800 * UICoeff;
-                var margin = 32 * UICoeff;
-                var padding = 16 * UICoeff;
+                var margin = UISmallMargin;
+                var padding = UISmallMargin / 2;
                 var labelSize = _labelStyle.CalcSize(new GUIContent(label));
 
                 /// Draw Frame

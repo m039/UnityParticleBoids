@@ -3,6 +3,7 @@ using UnityEngine;
 
 using m039.Common;
 using static m039.Common.UIUtils;
+using UnityEngine.InputSystem;
 
 namespace GP4
 {
@@ -56,9 +57,12 @@ namespace GP4
 
         BaseLivingEntityConfig _lastLivingEntityData;
 
+        FPSDisplay _fpsDisplay;
+
         private void Awake()
         {
             _lastLivingEntityData = _LivingEntityData;
+            _fpsDisplay = FindObjectOfType<FPSDisplay>();
         }
 
         void OnValidate()
@@ -75,6 +79,7 @@ namespace GP4
         void LateUpdate()
         {
             UpdateBounds(); // Updates the bounds only when needed.
+            UpdateUI();
         }
 
         bool IsTypeEquals(BaseSpawner spawner, SpawnerType type)
@@ -162,6 +167,16 @@ namespace GP4
             var width = height * camera.aspect;
 
             _lastBounds = new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
+        }
+
+        void UpdateUI()
+        {
+            if (Keyboard.current.escapeKey.wasReleasedThisFrame)
+            {
+                _GUIVisibility = !_GUIVisibility;
+            }
+
+            _fpsDisplay.Visibility = _GUIVisibility;
         }
 
         void UpdateLivingEntityData()

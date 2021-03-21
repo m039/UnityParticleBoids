@@ -124,8 +124,7 @@ namespace GP4
 
                 int pointIndex = index * 4;
 
-                var rotation = Quaternion.AngleAxis(data.rotation, Vector3.forward);
-                var matrix = Matrix4x4.TRS(Vector3.zero, rotation, data.Scale);
+                var matrix = Matrix4x4.TRS(Vector3.zero, data.Rotation, data.Scale);
 
                 var dataPosition = data.Position;
 
