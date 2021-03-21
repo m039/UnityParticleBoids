@@ -13,7 +13,12 @@ namespace GP4
 
         ParticleSystemRenderer _particleSystemRenderer;
 
-        NativeArray<ParticleSystem.Particle>? _particles;
+        NativeArray<ParticleSystem.Particle> _particles;
+
+        private void Awake()
+        {
+            _particles = new NativeArray<ParticleSystem.Particle>(1024, Allocator.Persistent);
+        }
 
         protected override void OnInitSimulation()
         {
@@ -25,11 +30,9 @@ namespace GP4
 
             main.maxParticles = numberOfEntities;
 
-            if (!_particles.HasValue || _particles.Value.Length != _particleSystem.main.maxParticles)
+            if (_particles.Length != _particleSystem.main.maxParticles)
             {
-                if (_particles.HasValue)
-                    _particles.Value.Dispose();
-
+                _particles.Dispose();
                 _particles = new NativeArray<ParticleSystem.Particle>(_particleSystem.main.maxParticles, Allocator.Persistent);
             }
 
@@ -87,10 +90,10 @@ namespace GP4
             new CopyMemoryJob
             {
                 enteties = Simulation.Enteties,
-                particles = _particles.Value
-            }.Schedule(_particles.Value.Length, 1024).Complete();
+                particles = _particles
+            }.Schedule(_particles.Length, 1024).Complete();
 
-            _particleSystem.SetParticles(_particles.Value);
+            _particleSystem.SetParticles(_particles);
         }
 
         protected override void OnEnable()
@@ -106,9 +109,11 @@ namespace GP4
             base.OnDisable();
 
             _particleSystem.Stop();
+        }
 
-            _particles.Value.Dispose();
-            _particles = null;
+        private void OnDestroy()
+        {
+            _particles.Dispose();
         }
 
         protected override void PerformOnGUI(IDrawer drawer)

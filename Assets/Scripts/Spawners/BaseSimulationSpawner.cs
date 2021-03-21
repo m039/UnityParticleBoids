@@ -26,19 +26,14 @@ namespace GP4
             InitSimulation();
         }
 
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-
-            if (_simulation != null)
-            {
-                _simulation.Reset();
-            }
-        }
-
         void InitSimulation()
         {
             /// Create simulation
+
+            if (_simulation != null)
+            {
+                _simulation.Dispose();
+            }
 
             _simulation = new LivingEntitySimulation()
             {
@@ -93,11 +88,16 @@ namespace GP4
                 _simulation.DrawGizmos();
         }
 
+        private void OnDestroy()
+        {
+            _simulation.Dispose();
+        }
+
         public class LivingEntitySimulation
         {
             readonly static LivingEntityDataComparer _sEntetiesComparer = new LivingEntityDataComparer();
 
-            NativeArray<LivingEntityData> _enteties;
+            NativeArray<LivingEntityData> _enteties = new NativeArray<LivingEntityData>(1024, Allocator.Persistent);
 
             public GetSettingValue<float> entetiesReferenceScale = () => 1.0f;
 
@@ -113,11 +113,9 @@ namespace GP4
 
             public void Populate(int numberOfEntities, BaseLivingEntityConfig entetyConfig)
             {
-                if (!_enteties.IsCreated || _enteties.Length != numberOfEntities)
+                if (_enteties.Length != numberOfEntities)
                 {
-                    if (_enteties.IsCreated)
-                        _enteties.Dispose();
-
+                    _enteties.Dispose();
                     _enteties = new NativeArray<LivingEntityData>(numberOfEntities, Allocator.Persistent);
 
                     for (int i = 0; i < _enteties.Length; i++)
@@ -255,13 +253,9 @@ namespace GP4
                 }
             }
 
-            public void Reset()
+            public void Dispose()
             {
-                //if (_enteties.IsCreated)
-                //{
-                //    _enteties.Dispose();
-                //    _enteties = default;
-                //}
+                _enteties.Dispose();
             }
 
             class LivingEntityDataComparer : IComparer<LivingEntityData>
