@@ -27,6 +27,9 @@ namespace GP4
         BaseLivingEntityConfig _LivingEntityData;
 
         [SerializeField]
+        BaseLivingEntityConfig[] _LivingEntityDatas;
+
+        [SerializeField]
         bool _GUIVisibility = true;
 
         #endregion
@@ -53,7 +56,9 @@ namespace GP4
 
         readonly List<BaseSpawner> _spawners = new List<BaseSpawner>();
 
-        ComboBox _comboBox;
+        ComboBox _spawnerComboBox;
+
+        ComboBox _configComboBox;
 
         BaseLivingEntityConfig _lastLivingEntityData;
 
@@ -154,9 +159,9 @@ namespace GP4
 
             // Update comboBox
 
-            if (_comboBox != null)
+            if (_spawnerComboBox != null)
             {
-                _comboBox.SelectedItemIndex = (int)_type;
+                _spawnerComboBox.SelectedItemIndex = (int)_type;
             }
         }
 
@@ -190,12 +195,14 @@ namespace GP4
 
         void OnGUI()
         {
-            if (_comboBox == null)
+            const float spawnerBoxWidth = 440f;
+
+            if (_spawnerComboBox == null)
             {              
-                var width = 400 * UICoeff + 32 * 2 * UICoeff;
-                var height = 100 * UICoeff + 32 * 2 * UICoeff;
-                var x = Screen.width - width - 100 * UICoeff + 32 * 1 * UICoeff;
-                var y = Screen.height - height - 100 * UICoeff + 32 * 1 * UICoeff;
+                var width = spawnerBoxWidth * UICoeff;
+                var height = UIMediumMargin + UISmallMargin * 2;
+                var x = Screen.width - width - UIMediumMargin;
+                var y = Screen.height - height - UIMediumMargin;
 
                 var rect = new Rect(x, y, width, height);
 
@@ -218,27 +225,75 @@ namespace GP4
                 listStyle.onHover.background = listStyle.hover.background = new Texture2D(2, 2);
                 listStyle.padding.left = listStyle.padding.right = listStyle.padding.top = listStyle.padding.bottom = 4;
 
-                _comboBox = new ComboBox(
+                _spawnerComboBox = new ComboBox(
                     rect,
                     comboBoxList,
                     buttonStyle,
                     boxStyle,
                     listStyle
                     );
-                _comboBox.OnItemSelected += (i, userHasPressed) => {
+                _spawnerComboBox.OnItemSelected += (i, userHasPressed) => {
                     if (!userHasPressed) return;
 
                     _SelectedType = (SpawnerType)i;
 
                     UpdateType();
                 };
-                _comboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
-                _comboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
+                _spawnerComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
+                _spawnerComboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
+            }
+
+            if (_configComboBox == null)
+            {
+                var width = 550 * UICoeff;
+                var height = UIMediumMargin + UISmallMargin * 2;
+                var x = Screen.width - UIMediumMargin - spawnerBoxWidth * UICoeff - UISmallMargin - width;
+                var y = Screen.height - height - UIMediumMargin;
+
+                var rect = new Rect(x, y, width, height);
+
+                var comboBoxList = new GUIContent[_LivingEntityDatas.Length];
+
+                for (int i = 0; i < comboBoxList.Length; i++)
+                {
+                    comboBoxList[i] = new GUIContent(_LivingEntityDatas[i].Name);
+                }
+
+                var buttonStyle = new GUIStyle("button");
+                buttonStyle.fontSize = (int)(60f * UICoeff);
+
+                var boxStyle = new GUIStyle("box");
+
+                var listStyle = new GUIStyle();
+
+                listStyle.fontSize = (int)(60f * UICoeff);
+                listStyle.normal.textColor = Color.white;
+                listStyle.onHover.background = listStyle.hover.background = new Texture2D(2, 2);
+                listStyle.padding.left = listStyle.padding.right = listStyle.padding.top = listStyle.padding.bottom = 4;
+
+                _configComboBox = new ComboBox(
+                    rect,
+                    comboBoxList,
+                    buttonStyle,
+                    boxStyle,
+                    listStyle
+                    );
+                _configComboBox.OnItemSelected += (i, userHasPressed) => {
+                    if (!userHasPressed) return;
+
+                    _LivingEntityData = _LivingEntityDatas[i];
+
+                    UpdateLivingEntityData();
+                };
+
+                _configComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
+                _configComboBox.SelectedItemIndex = System.Array.FindIndex(_LivingEntityDatas, (d) => d.Equals(_LivingEntityData));
             }
 
             if (GUIVisibility)
             {
-                _comboBox.Show();
+                _spawnerComboBox.Show();
+                _configComboBox.Show();
             }
         }
 

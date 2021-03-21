@@ -13,13 +13,6 @@ namespace GP4
 
         ParticleSystem.Particle[] _particles;
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-
-            OnLivingEntityDataChanged();
-        }
-
         protected override void OnInitSimulation()
         {
             _particleSystem = GetComponent<ParticleSystem>();
@@ -36,6 +29,28 @@ namespace GP4
             }
 
             _particleSystem.Clear();
+
+            // Init appearance
+
+            var entityData = Context.LivingEntityConfig.GetData();
+            var sprite = entityData.sprite;
+
+            var mesh = new Mesh();
+            mesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
+            mesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
+            mesh.uv = sprite.uv;
+            mesh.colors = Enumerable.Repeat(Color.white, mesh.vertices.Length).ToArray();
+
+            var material = new Material(Shader.Find("Unlit/SimpleSprite"));
+            material.enableInstancing = true;
+            material.mainTexture = sprite.texture;
+            material.color = Color.white;
+            material.EnableKeyword("USE_IN_PARTICLE");
+
+            _particleSystemRenderer.mesh = mesh;
+            _particleSystemRenderer.enableGPUInstancing = true;
+            _particleSystemRenderer.material = material;
+            _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
         }
 
         protected override void OnDrawSimulation()
@@ -71,33 +86,6 @@ namespace GP4
         public override void OnSpawnerDeselected()
         {
             _particleSystem.Stop();
-        }
-
-        protected override void OnLivingEntityDataChanged()
-        {
-            base.OnLivingEntityDataChanged();
-
-            // Init appearance
-
-            var entityData = Context.LivingEntityConfig.GetData();
-            var sprite = entityData.sprite;
-
-            var mesh = new Mesh();
-            mesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
-            mesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
-            mesh.uv = sprite.uv;
-            mesh.colors = Enumerable.Repeat(Color.white, mesh.vertices.Length).ToArray();
-
-            var material = new Material(Shader.Find("Unlit/SimpleSprite"));
-            material.enableInstancing = true;
-            material.mainTexture = sprite.texture;
-            material.color = Color.white;
-            material.EnableKeyword("USE_IN_PARTICLE");
-
-            _particleSystemRenderer.mesh = mesh;
-            _particleSystemRenderer.enableGPUInstancing = true;
-            _particleSystemRenderer.material = material;
-            _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
         }
 
         protected override int EntetiesCount => _particleSystem.particleCount;

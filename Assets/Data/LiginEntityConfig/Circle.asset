@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0866fb0b5e2ccd846ae641b6000df62f, type: 3}
   m_Name: Circle
   m_EditorClassIdentifier: 
+  Name: Circles
   sprite: {fileID: 21300000, guid: de89a61d966f69246b203aab820cf7df, type: 3}
   color: {r: 0.271281, g: 0.2520915, b: 0.9716981, a: 1}
   radius: 0.5

@@ -74,6 +74,13 @@ namespace GP4
             _simulation.Reset();
         }
 
+        protected override void OnLivingEntityDataChanged()
+        {
+            base.OnLivingEntityDataChanged();
+
+            InitSimulation();
+        }
+
         protected virtual void OnDrawGizmosSelected()
         {
             if (!useGizmos)

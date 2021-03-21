@@ -17,11 +17,6 @@ namespace GP4
 
         protected override void OnInitSimulation()
         {
-            InitRenderData();
-        }
-
-        void InitRenderData()
-        {
             var entityData = Context.LivingEntityConfig.GetData();
             var sprite = entityData.sprite;
 
@@ -60,13 +55,6 @@ namespace GP4
                     false
                     );
             }
-        }
-
-        protected override void OnLivingEntityDataChanged()
-        {
-            base.OnLivingEntityDataChanged();
-
-            InitRenderData();
         }
 
         protected override void PerformOnGUI(IDrawer drawer)

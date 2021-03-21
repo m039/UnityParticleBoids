@@ -250,6 +250,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _SelectedType: 1
   _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
+  _LivingEntityDatas:
+  - {fileID: 11400000, guid: e7b6680f8a003ea459621aa949065aa7, type: 2}
+  - {fileID: 11400000, guid: 7f4a7aa7bd0bbe942aa88df8d20b8cff, type: 2}
+  - {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _GUIVisibility: 1
 --- !u!4 &676004606
 Transform:
@@ -573,6 +577,7 @@ MonoBehaviour:
   _FontMediumLoadColor: {r: 0.9254902, g: 0.94509804, b: 0.2901961, a: 1}
   _FontHighLoadColor: {r: 0.87058824, g: 0.38431373, b: 0.30980393, a: 1}
   _FontCastShadowColor: {r: 0, g: 0, b: 0, a: 1}
+  _ShowFrame: 1
 --- !u!4 &1299514201
 Transform:
   m_ObjectHideFlags: 0

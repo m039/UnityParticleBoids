@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace GP4
@@ -7,6 +5,8 @@ namespace GP4
 
     public abstract class BaseLivingEntityConfig : ScriptableObject
     {
+        public string Name;
+
         public struct InitData
         {
             public Vector2 position; // Normalized positin (-0.5 .. 0.5, -0.5 .. 0.5)
