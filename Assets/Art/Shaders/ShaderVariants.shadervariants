@@ -101,13 +101,18 @@ ShaderVariantCollection:
       variants:
       - keywords: BILLBOARD_FACE_CAMERA_POS INSTANCING_ON UNITY_HDR_ON
         passType: 0
-      - keywords: BILLBOARD_FACE_CAMERA_POS PROCEDURAL_INSTANCING_ON USE_IN_PARTICLE
-        passType: 0
       - keywords: BILLBOARD_FACE_CAMERA_POS PROCEDURAL_INSTANCING_ON UNITY_HDR_ON
           USE_IN_PARTICLE
+        passType: 0
+      - keywords: BILLBOARD_FACE_CAMERA_POS PROCEDURAL_INSTANCING_ON USE_IN_PARTICLE
         passType: 0
   - first: {fileID: 4800000, guid: 272583254fc78734ba166f60d9482870, type: 3}
     second:
       variants:
       - keywords: 
+        passType: 0
+  - first: {fileID: 4800000, guid: fb53fe7416949ab41b32f12111cb5821, type: 3}
+    second:
+      variants:
+      - keywords: INSTANCING_ON USE_IN_PARTICLE
         passType: 0

@@ -35,22 +35,22 @@ namespace GP4
             var entityData = Context.LivingEntityConfig.GetData();
             var sprite = entityData.sprite;
 
-            var mesh = new Mesh();
-            mesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
-            mesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
-            mesh.uv = sprite.uv;
-            mesh.colors = Enumerable.Repeat(Color.white, mesh.vertices.Length).ToArray();
+            //var mesh = new Mesh();
+            //mesh.vertices = sprite.vertices.Select(v => (Vector3)v).ToArray();
+            //mesh.triangles = sprite.triangles.Select(t => (int)t).ToArray();
+            //mesh.uv = sprite.uv;
+            //mesh.colors = Enumerable.Repeat(Color.white, mesh.vertices.Length).ToArray();
 
-            var material = new Material(Shader.Find("Unlit/SimpleSprite"));
-            material.enableInstancing = true;
+            var material = new Material(Shader.Find("Unlit/DefaultSimpleSprite"));
+            //material.enableInstancing = true;
             material.mainTexture = sprite.texture;
             material.color = Color.white;
             material.EnableKeyword("USE_IN_PARTICLE");
 
-            _particleSystemRenderer.mesh = mesh;
-            _particleSystemRenderer.enableGPUInstancing = true;
+            //_particleSystemRenderer.mesh = mesh;
+            //_particleSystemRenderer.enableGPUInstancing = true;
             _particleSystemRenderer.material = material;
-            _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Mesh;
+            _particleSystemRenderer.renderMode = ParticleSystemRenderMode.Billboard;
         }
 
         protected override void OnDrawSimulation()
