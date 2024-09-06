@@ -77,7 +77,7 @@ namespace GP4
                 );
         }
 
-        protected override void PerformOnGUI(IDrawer drawer)
+        protected override void PerformOnGUI(Drawer drawer)
         {
             base.PerformOnGUI(drawer);
 

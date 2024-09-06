@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 using m039.Common.DependencyInjection;
 using m039.UIToolbox;
 using Game;
+using System;
+using System.Linq;
 
 namespace GP4
 {
@@ -71,14 +73,22 @@ namespace GP4
         [Inject]
         ModularPanel _modularPanel;
 
-        private void Awake()
+        [NonSerialized]
+        public int numberOfEntities = 2000;
+
+        [NonSerialized]
+        public float entetiesReferenceSpeed = 0.11f;
+
+        [NonSerialized]
+        public float entetiesReferenceScale = 0.2f;
+
+        [NonSerialized]
+        public float entetiesReferenceAlpha = 1f;
+
+        void Awake()
         {
             _lastLivingEntityData = _LivingEntityData;
             CreatePanel();
-        }
-
-        void CreatePanel()
-        {
         }
 
         void OnValidate()
@@ -90,6 +100,63 @@ namespace GP4
         void Start()
         {
             UpdateType();
+        }
+
+        void CreatePanel()
+        {
+            if (_modularPanel == null)
+                return;
+
+            var builder = _modularPanel.CreateBuilder();
+
+            var numberOfEntitiesItem = new ModularPanel.SliderItem(numberOfEntities, 0, 100000)
+            {
+                label = "Entities",
+                valueFormat = "0"
+            };
+            numberOfEntitiesItem.onValueChanged += v => numberOfEntities = (int)v;
+            builder.AddItem(numberOfEntitiesItem);
+
+            var entetiesReferenceSpeedItem = new ModularPanel.SliderItem(entetiesReferenceSpeed, 0f, 10f)
+            {
+                label = "Speed"
+            };
+            entetiesReferenceSpeedItem.onValueChanged += v => entetiesReferenceSpeed = v;
+            builder.AddItem(entetiesReferenceSpeedItem);
+
+            var entetiesReferenceScaleItem = new ModularPanel.SliderItem(entetiesReferenceScale, 0.01f, 5f)
+            {
+                label = "Scale"
+            };
+            entetiesReferenceScaleItem.onValueChanged += v => entetiesReferenceScale = v;
+            builder.AddItem(entetiesReferenceScaleItem);
+
+            var entetiesReferenceAlphaItem = new ModularPanel.SliderItem(entetiesReferenceAlpha, 0f, 1f)
+            {
+                label = "Alpha"
+            };
+            entetiesReferenceAlphaItem.onValueChanged += v => entetiesReferenceAlpha = v;
+            builder.AddItem(entetiesReferenceAlphaItem);
+
+            var spawnerTypeItem = new ModularPanel.DropdownEnumItem(typeof(SpawnerType), "Mode");
+            spawnerTypeItem.value = (int)_SelectedType;
+            spawnerTypeItem.onValueChanged += v =>
+            {
+                _SelectedType = (SpawnerType)v;
+                UpdateType();
+            };
+            builder.AddItem(spawnerTypeItem);
+
+            var patterns = new ModularPanel.DropdownItem(Array.IndexOf(_LivingEntityDatas, _LivingEntityData), "Patterns");
+            patterns.onValueChanged += v =>
+            {
+                _LivingEntityData = _LivingEntityDatas[v];
+                UpdateLivingEntityData();
+            };
+            patterns.options = _LivingEntityDatas.Select(d => d.Name).ToList();
+            builder.AddItem(patterns);
+
+            builder.Build();
         }
 
         void LateUpdate()
@@ -196,130 +263,6 @@ namespace GP4
             {
                 OnLivingEntityDataChanged?.Invoke();
                 _lastLivingEntityData = _LivingEntityData;
-            }
-        }
-
-        void OnGUI()
-        {
-            const float spawnerBoxWidth = 550f;
-
-            if (_spawnerComboBox == null)
-            {              
-                var width = spawnerBoxWidth * UICoeff;
-                var height = UIMediumMargin + UISmallMargin * 2;
-                var x = Screen.width - width - UIMediumMargin;
-                var y = Screen.height - height - UIMediumMargin;
-
-                var rect = new Rect(x, y, width, height);
-
-                var comboBoxList = new GUIContent[]
-                {
-                    new GUIContent("GameObject"), // Basic
-                    new GUIContent("Draw Mesh"),
-                    new GUIContent("One Mesh"),
-                    new GUIContent("Particle System")
-                };
-
-                var buttonStyle = new GUIStyle("button");
-                buttonStyle.fontSize = (int)(60f * UICoeff);
-
-                var boxStyle = new GUIStyle("box");
-
-                var listStyle = new GUIStyle();
-                listStyle.fontSize = (int)(60f * UICoeff);
-                listStyle.normal.textColor = Color.white;
-                listStyle.onHover.background = listStyle.hover.background = new Texture2D(2, 2);
-                listStyle.padding.left = listStyle.padding.right = listStyle.padding.top = listStyle.padding.bottom = 4;
-
-                _spawnerComboBox = new ComboBox(
-                    rect,
-                    comboBoxList,
-                    buttonStyle,
-                    boxStyle,
-                    listStyle
-                    );
-                _spawnerComboBox.OnItemSelected += (i, userHasPressed) => {
-                    if (!userHasPressed) return;
-
-                    _SelectedType = (SpawnerType)i;
-
-                    UpdateType();
-                };
-                _spawnerComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
-                _spawnerComboBox.SelectedItemIndex = _type.HasValue? (int) _type.Value : 0;
-            } else
-            {
-                var width = spawnerBoxWidth * UICoeff;
-                var height = UIMediumMargin + UISmallMargin * 2;
-                var x = Screen.width - width - UIMediumMargin;
-                var y = Screen.height - height - UIMediumMargin;
-
-                var rect = new Rect(x, y, width, height);
-
-                _spawnerComboBox.rect = rect;
-            }
-
-            if (_configComboBox == null)
-            {
-                var width = 550 * UICoeff;
-                var height = UIMediumMargin + UISmallMargin * 2;
-                var x = Screen.width - UIMediumMargin - spawnerBoxWidth * UICoeff - UISmallMargin - width;
-                var y = Screen.height - height - UIMediumMargin;
-
-                var rect = new Rect(x, y, width, height);
-
-                var comboBoxList = new GUIContent[_LivingEntityDatas.Length];
-
-                for (int i = 0; i < comboBoxList.Length; i++)
-                {
-                    comboBoxList[i] = new GUIContent(_LivingEntityDatas[i].Name);
-                }
-
-                var buttonStyle = new GUIStyle("button");
-                buttonStyle.fontSize = (int)(60f * UICoeff);
-
-                var boxStyle = new GUIStyle("box");
-
-                var listStyle = new GUIStyle();
-
-                listStyle.fontSize = (int)(60f * UICoeff);
-                listStyle.normal.textColor = Color.white;
-                listStyle.onHover.background = listStyle.hover.background = new Texture2D(2, 2);
-                listStyle.padding.left = listStyle.padding.right = listStyle.padding.top = listStyle.padding.bottom = 4;
-
-                _configComboBox = new ComboBox(
-                    rect,
-                    comboBoxList,
-                    buttonStyle,
-                    boxStyle,
-                    listStyle
-                    );
-                _configComboBox.OnItemSelected += (i, userHasPressed) => {
-                    if (!userHasPressed) return;
-
-                    _LivingEntityData = _LivingEntityDatas[i];
-
-                    UpdateLivingEntityData();
-                };
-
-                _configComboBox.Direction = ComboBox.PopupDirection.FromBottomToTop;
-                _configComboBox.SelectedItemIndex = System.Array.FindIndex(_LivingEntityDatas, (d) => d.Equals(_LivingEntityData));
-            } else
-            {
-                var width = 550 * UICoeff;
-                var height = UIMediumMargin + UISmallMargin * 2;
-                var x = Screen.width - UIMediumMargin - spawnerBoxWidth * UICoeff - UISmallMargin - width;
-                var y = Screen.height - height - UIMediumMargin;
-
-                var rect = new Rect(x, y, width, height);
-
-                _configComboBox.rect = rect;
-            }
-
-            if (GUIVisibility)
-            {
-                _spawnerComboBox.Show();
-                _configComboBox.Show();
             }
         }
 
