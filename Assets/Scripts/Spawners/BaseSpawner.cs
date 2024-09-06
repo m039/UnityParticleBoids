@@ -226,36 +226,7 @@ namespace GP4
 
             public void DrawInfo(string name)
             {
-                var marginVertical = UIMediumMargin * 2;
-                var marginHorizontal = UIMediumMargin;
-                var tRect = new Rect(marginHorizontal, Screen.height - (marginHorizontal + marginVertical), 2000 * UICoeff, marginVertical);
-
-                _labelStyle.fontSize = (int)(60 * UICoeff);
-                _labelStyle.alignment = TextAnchor.LowerLeft;
-                _labelStyle.font = _nameFont;
-
-                // Draw frame
-
-                var size = _labelStyle.CalcSize(new GUIContent(name));
-                var margin = 32 * UICoeff;
-                var frameRect = new Rect(tRect.x - margin, tRect.y + (marginVertical - size.y) - margin, size.x + margin * 2, size.y + margin * 2);
-
-                GUI.Box(frameRect, _frameTexture, _frameStyle);
-
-                // Draw shadow
-
-                _labelStyle.normal.textColor = Color.black;
-
-                var tRectShadow = new Rect(tRect);
-                tRectShadow.center += Vector2.one * _offset;
-
-                GUI.Label(tRectShadow, name, _labelStyle);
-
-                // Draw text
-
-                _labelStyle.normal.textColor = Color.white;
-
-                GUI.Label(tRect, name, _labelStyle);
+                GameScene.Instance.notificationMessage.SetMessage(name);
             }
         }
 

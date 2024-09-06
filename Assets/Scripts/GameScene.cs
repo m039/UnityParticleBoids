@@ -4,6 +4,9 @@ using UnityEngine;
 using m039.Common;
 using static m039.Common.UIUtils;
 using UnityEngine.InputSystem;
+using m039.Common.DependencyInjection;
+using m039.UIToolbox;
+using Game;
 
 namespace GP4
 {
@@ -12,7 +15,7 @@ namespace GP4
     {
         enum SpawnerType
         {
-            Basic = 0,
+            GameObject = 0,
             DrawMesh = 1,
             OneMesh = 2,
             ParticleSystem = 3
@@ -21,7 +24,7 @@ namespace GP4
         #region Inspector
 
         [SerializeField]
-        SpawnerType _SelectedType = SpawnerType.Basic;
+        SpawnerType _SelectedType = SpawnerType.GameObject;
 
         [SerializeField]
         BaseLivingEntityConfig _LivingEntityData;
@@ -62,12 +65,20 @@ namespace GP4
 
         BaseLivingEntityConfig _lastLivingEntityData;
 
-        FPSDisplay _fpsDisplay;
+        [Inject]
+        public NotificationMessage notificationMessage { get; private set; }
+
+        [Inject]
+        ModularPanel _modularPanel;
 
         private void Awake()
         {
             _lastLivingEntityData = _LivingEntityData;
-            _fpsDisplay = FindObjectOfType<FPSDisplay>();
+            CreatePanel();
+        }
+
+        void CreatePanel()
+        {
         }
 
         void OnValidate()
@@ -89,7 +100,7 @@ namespace GP4
 
         bool IsTypeEquals(BaseSpawner spawner, SpawnerType type)
         {
-            if (spawner is LivingEntityBasicSpawner && type == SpawnerType.Basic ||
+            if (spawner is LivingEntityBasicSpawner && type == SpawnerType.GameObject ||
                 spawner is LivingEntityDrawMeshSpawner && type == SpawnerType.DrawMesh ||
                 spawner is LivingEntityOneMeshSpawner && type == SpawnerType.OneMesh ||
                 spawner is LivingEntityParticleSystemSpawner && type == SpawnerType.ParticleSystem)
@@ -177,8 +188,6 @@ namespace GP4
             {
                 _GUIVisibility = !_GUIVisibility;
             }
-
-            _fpsDisplay.Visibility = _GUIVisibility;
         }
 
         void UpdateLivingEntityData()
