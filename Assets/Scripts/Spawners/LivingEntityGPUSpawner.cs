@@ -1,11 +1,20 @@
 using m039.Common;
+using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace GP4
 {
     public class LivingEntityGPUSpawner : BaseSpawner
     {
+        #region Inspector
+
+        [SerializeField]
+        ComputeShader _ParticleShader;
+
+        #endregion
+
         GraphicsBuffer _meshTriangles;
 
         GraphicsBuffer _meshPositions;
@@ -19,6 +28,15 @@ namespace GP4
         ComputeBuffer _buffer;
 
         int _previousNumberOfEntities = -1;
+
+        int _kernelId;
+
+        int _threadGroups;
+
+        AsyncGPUReadbackRequest? _request;
+
+        [NonSerialized]
+        public bool HandleOutOfBoundsOnGPU = true;
 
         GetSettingValue<Bounds> SceneBounds => () => GameScene.Instance.SceneBounds;
 
@@ -90,32 +108,11 @@ namespace GP4
 
             // Init buffer.
 
-            Vector3 getPosition(Vector2 normalizedPosition)
-            {
-                var sb = SceneBounds();
-                var center = sb.center;
-                var size = sb.size / 2f;
-                size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
-                return center + size;
-            }
-
             var particles = new Particle[numberOfEntities];
 
             for (int i = 0; i < numberOfEntities; i++)
             {
-                var initData = Context.LivingEntityConfig.GetData();
-
-                particles[i] = new Particle
-                {
-                    position = getPosition(initData.position),
-                    rotation = initData.rotation,
-                    scale = initData.scale,
-                    speed = initData.speed,
-                    baseColor = initData.color,
-                    radius = initData.radius,
-                    layer = initData.layer,
-                    alpha = 0f,
-                };
+                particles[i] = CreateParticle();
             }
 
             _buffer = new ComputeBuffer(
@@ -126,10 +123,47 @@ namespace GP4
             _buffer.SetData(particles);
 
             _material.SetBuffer("_Particles", _buffer);
+
+            _kernelId = _ParticleShader.FindKernel("Process");
+            _ParticleShader.SetBuffer(_kernelId, "_Particles", _buffer);
+            _ParticleShader.SetInt("_NumberOfEnteties", numberOfEntities);
+            _ParticleShader.SetFloat("_AlphaFadeOutSpeed", BaseSimulationSpawner.AlphaFadeOutSpeed);
+
+            _ParticleShader.GetKernelThreadGroupSizes(_kernelId, out uint threadGroupSizeX, out _, out _);
+            _threadGroups = Mathf.CeilToInt((float)numberOfEntities / threadGroupSizeX);
+        }
+
+        Particle CreateParticle()
+        {
+            Vector3 getPosition(Vector2 normalizedPosition)
+            {
+                var sb = SceneBounds();
+                var center = sb.center;
+                var size = sb.size / 2f;
+                size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
+                return center + size;
+            }
+
+            var initData = Context.LivingEntityConfig.GetData();
+
+            return new Particle
+            {
+                position = getPosition(initData.position),
+                rotation = initData.rotation,
+                scale = initData.scale,
+                speed = initData.speed,
+                baseColor = initData.color,
+                radius = initData.radius,
+                layer = initData.layer,
+                alpha = 0f,
+            };
         }
 
         void Update()
         {
+            if (numberOfEntities == 0)
+                return;
+
             OnUpdate();
             OnDraw();
         }
@@ -140,6 +174,39 @@ namespace GP4
             {
                 OnInit();
                 _previousNumberOfEntities = numberOfEntities;
+            }
+
+            var bounds = SceneBounds();
+
+            _ParticleShader.SetFloat("_Speed", entetiesReferenceSpeed);
+            _ParticleShader.SetFloat("_DeltaTime", Time.deltaTime);
+            _ParticleShader.SetFloats("_BoundSize", bounds.size.x, bounds.size.y);
+            _ParticleShader.SetFloats("_BoundCenter", bounds.center.x, bounds.center.y);
+            _ParticleShader.SetInt("_HandleOutOfBounds", HandleOutOfBoundsOnGPU ? 1 : 0);
+
+            _ParticleShader.Dispatch(_kernelId, _threadGroups, 1, 1);
+
+            if (!HandleOutOfBoundsOnGPU && _request == null)
+            {
+                _request = AsyncGPUReadback.Request(_buffer, (callback) =>
+                {
+                    _request = null;
+
+                    if (!enabled)
+                        return;
+
+                    var particles = callback.GetData<Particle>();
+
+                    for (int i = 0; i < particles.Length; i++)
+                    {
+                        if (particles[i].outOfBounds == 1)
+                        {
+                            particles[i] = CreateParticle();
+                        }
+                    }
+
+                    _buffer.SetData(particles);
+                });
             }
         }
 
@@ -166,9 +233,6 @@ namespace GP4
 
         void OnDraw()
         {
-            if (numberOfEntities == 0)
-                return;
-
             RenderParams rp = new(_material);
             rp.worldBounds = SceneBounds();
             rp.matProps = new MaterialPropertyBlock();
@@ -177,7 +241,12 @@ namespace GP4
             rp.matProps.SetBuffer("_UV", _meshUV);
             rp.matProps.SetFloat("_Scale", entetiesReferenceScale);
             rp.matProps.SetFloat("_Alpha", entetiesReferenceAlpha);
-            Graphics.RenderPrimitives(rp, MeshTopology.Triangles, 6, numberOfEntities);
+
+            for (int i = 0; i < Context.LivingEntityConfig.NumberOfLayers; i++)
+            {
+                rp.matProps.SetInt("_Layer", i);
+                Graphics.RenderPrimitives(rp, MeshTopology.Triangles, 6, numberOfEntities);
+            }
         }
 
         protected override void PerformOnGUI(Drawer drawer)

@@ -1,4 +1,4 @@
-// Each #kernel tells which function to compile; you can have many kernels
+#define BlockSize 512
 #pragma kernel Process
 
 struct Particle
@@ -16,11 +16,13 @@ struct Particle
 
 RWStructuredBuffer<Particle> _Particles;
 
-uint _NumberOfEnteties;
-float _Speed;
-float _DeltaTime;
-float2 _BoundSize;
-float2 _BoundCenter;
+uniform uint _NumberOfEnteties;
+uniform float _Speed;
+uniform float _DeltaTime;
+uniform float2 _BoundSize;
+uniform float2 _BoundCenter;
+uniform float _AlphaFadeOutSpeed;
+uniform uint _HandleOutOfBounds;
 
 float2 rotate(float2 position, float rotation)
 {
@@ -30,31 +32,80 @@ float2 rotate(float2 position, float rotation)
     return mul(m, position);
 }
 
-[numthreads(32,1,1)]
+float randomMinMax(uint id, float min, float max)
+{
+    float v = frac(sin(id * 12.9898) * 43758.5453);
+    return min + (max - min) * v;
+}
+
+[numthreads(BlockSize, 1, 1)]
 void Process(uint id : SV_DispatchThreadID)
 {
     if (id >= _NumberOfEnteties)
         return;
     
     Particle particle = _Particles[id];
-    if (particle.outOfBounds == 1)
+    if (particle.outOfBounds == 1 && _HandleOutOfBounds == 0)
         return;
     
     float2 up = float2(0.0, 1.0);
     up = rotate(up, particle.rotation);
     
-    particle.position += particle.speed * up * particle.speed * _Speed * _DeltaTime;
+    particle.position += up * particle.speed * _Speed * _DeltaTime;
     
     float xMin = _BoundCenter.x - _BoundSize.x / 2.0;
     float yMin = _BoundCenter.y - _BoundSize.y / 2.0;
     float xMax = _BoundCenter.x + _BoundSize.x / 2.0;
     float yMax = _BoundCenter.y + _BoundSize.y / 2.0;
     
-    if (particle.position.x < xMin || 
+    if (_HandleOutOfBounds == 0 &&
+        (particle.position.x < xMin ||
         particle.position.x > xMax ||
         particle.position.y < yMin ||
-        particle.position.y > yMax)
+        particle.position.y > yMax))
     {
         particle.outOfBounds = 1;
     }
+    
+    // Update alpha.
+    particle.alpha += _DeltaTime * _AlphaFadeOutSpeed;
+    if (particle.alpha > 1.0)
+    {
+        particle.alpha = 1.0;
+    }
+    else if (particle.alpha < 0.0)
+    {
+        particle.alpha = 0.0;
+    }
+    
+    if (_HandleOutOfBounds == 1)
+    {
+        // Check bounds.
+        if (particle.position.x < xMin)
+        {
+            particle.position.y = randomMinMax(id, yMin, yMax);
+            particle.position.x = xMax;
+            particle.alpha = 0.0;
+        }
+        else if (particle.position.x > xMax)
+        {
+            particle.position.y = randomMinMax(id, yMin, yMax);
+            particle.position.x = xMin;
+            particle.alpha = 0.0;
+        }
+        else if (particle.position.y < yMin)
+        {
+            particle.position.y = yMax;
+            particle.position.x = randomMinMax(id, xMin, xMax);
+            particle.alpha = 0.0;
+        }
+        else if (particle.position.y > yMax)
+        {
+            particle.position.y = yMin;
+            particle.position.x = randomMinMax(id, xMin, xMax);
+            particle.alpha = 0.0;
+        }
+    }
+    
+    _Particles[id] = particle;
 }

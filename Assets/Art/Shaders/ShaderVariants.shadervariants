@@ -116,3 +116,6 @@ ShaderVariantCollection:
       variants:
       - keywords: INSTANCING_ON USE_IN_PARTICLE
         passType: 0
+  - first: {fileID: 4800000, guid: f36574292f0e05544a86bf73e4fa01f6, type: 3}
+    second:
+      variants: []

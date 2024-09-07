@@ -138,11 +138,16 @@ namespace GP4
             entetiesReferenceAlphaItem.onValueChanged += v => entetiesReferenceAlpha = v;
             builder.AddItem(entetiesReferenceAlphaItem);
 
+            var handleOutOfBoundsOnGPUItem = new ModularPanel.ToggleItem(true, "Handle Out of Bounds on GPU");
+            handleOutOfBoundsOnGPUItem.onValueChanged += v => GetComponentInChildren<LivingEntityGPUSpawner>(true).HandleOutOfBoundsOnGPU = v;
+            builder.AddItem(handleOutOfBoundsOnGPUItem);
+
             var spawnerTypeItem = new ModularPanel.DropdownEnumItem(typeof(SpawnerType), "Mode");
             spawnerTypeItem.value = (int)_SelectedType;
             spawnerTypeItem.onValueChanged += v =>
             {
                 _SelectedType = (SpawnerType)v;
+                handleOutOfBoundsOnGPUItem.visible = _SelectedType == SpawnerType.GPU;
                 UpdateType();
             };
             builder.AddItem(spawnerTypeItem);

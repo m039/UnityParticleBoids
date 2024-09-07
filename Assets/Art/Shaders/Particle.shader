@@ -16,12 +16,13 @@ Shader "Game/Particle"
 
         Cull Off
         Lighting Off
-        ZWrite On
+        ZTest Always
         Blend One OneMinusSrcAlpha
 
         Pass
         {
             CGPROGRAM
+
 
             #pragma vertex vert
             #pragma fragment frag
@@ -57,6 +58,7 @@ Shader "Game/Particle"
 
             uniform float _Scale;
             uniform float _Alpha;
+            uniform int _Layer;
 
             float2 rotate(float2 position, float rotation) {
                 float angle = rotation * UNITY_PI / 180.0;
@@ -75,15 +77,26 @@ Shader "Game/Particle"
                 o.position = mul(UNITY_MATRIX_VP, float4(worldPosition + position, -particle.layer, 1.0));
                 o.uv = TRANSFORM_TEX(uv, _MainTex);
                 o.color = particle.baseColor;
+                o.color.a *= particle.alpha;
+
+                if (_Layer != particle.layer) {
+                    o.color.a = 0.0;
+                }
+
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                col.a *= _Alpha;
+                col.a *= _Alpha * i.color.a;
                 col.rgb *= col.a;
                 col.rgb *= GammaToLinearSpace(i.color.rgb);
+
+                if (col.a <= 0.0) {
+                    discard;
+                }
+
                 return col;
             }
 
