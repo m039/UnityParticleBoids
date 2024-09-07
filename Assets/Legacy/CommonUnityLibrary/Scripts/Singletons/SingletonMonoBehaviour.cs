@@ -45,7 +45,7 @@ namespace m039.Common
                     if (instance == null && !_sIsDestroying && !SkipCurrentScene())
                     {
                         // Search for an existing instance.
-                        instance = (T)FindObjectOfType(typeof(T));
+                        instance = (T)FindFirstObjectByType(typeof(T));
 
                         // Create a new instance if no one exists.
                         if (instance == null)

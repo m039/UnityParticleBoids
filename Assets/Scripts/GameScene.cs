@@ -83,7 +83,7 @@ namespace GP4
         public float entetiesReferenceScale = 0.2f;
 
         [NonSerialized]
-        public float entetiesReferenceAlpha = 1f;
+        public float entetiesReferenceAlpha = 0.7f;
 
         void Awake()
         {
@@ -124,7 +124,7 @@ namespace GP4
             entetiesReferenceSpeedItem.onValueChanged += v => entetiesReferenceSpeed = v;
             builder.AddItem(entetiesReferenceSpeedItem);
 
-            var entetiesReferenceScaleItem = new ModularPanel.SliderItem(entetiesReferenceScale, 0.01f, 5f)
+            var entetiesReferenceScaleItem = new ModularPanel.SliderItem(entetiesReferenceScale, 0.01f, 1f)
             {
                 label = "Scale"
             };
