@@ -23,7 +23,7 @@ namespace GP4
                 sprite = sprite,
                 scale = Vector2.one,
                 speed = Random.Range(0.1f, 1f),
-                position = new Vector2(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f)),
+                position = new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)),
                 rotation = Random.Range(0, 360f)
             };
         }

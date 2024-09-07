@@ -20,7 +20,8 @@ namespace GP4
             GameObject = 0,
             DrawMesh = 1,
             OneMesh = 2,
-            ParticleSystem = 3
+            ParticleSystem = 3,
+            GPU = 4
         }
 
         #region Inspector
@@ -42,10 +43,11 @@ namespace GP4
         public Bounds SceneBounds {
             get
             {
-                if (!_lastBounds.HasValue)
-                    UpdateBounds();
+                var camera = Camera.main;
+                var height = camera.orthographicSize * 2;
+                var width = height * camera.aspect;
 
-                return _lastBounds.Value;
+                return new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
             }
         }
 
@@ -54,8 +56,6 @@ namespace GP4
         public bool GUIVisibility => _GUIVisibility;
 
         public event System.Action OnLivingEntityDataChanged;
-
-        Bounds? _lastBounds;
 
         SpawnerType? _type;
 
@@ -161,7 +161,6 @@ namespace GP4
 
         void LateUpdate()
         {
-            UpdateBounds(); // Updates the bounds only when needed.
             UpdateUI();
         }
 
@@ -170,7 +169,8 @@ namespace GP4
             if (spawner is LivingEntityBasicSpawner && type == SpawnerType.GameObject ||
                 spawner is LivingEntityDrawMeshSpawner && type == SpawnerType.DrawMesh ||
                 spawner is LivingEntityOneMeshSpawner && type == SpawnerType.OneMesh ||
-                spawner is LivingEntityParticleSystemSpawner && type == SpawnerType.ParticleSystem)
+                spawner is LivingEntityParticleSystemSpawner && type == SpawnerType.ParticleSystem ||
+                spawner is LivingEntityGPUSpawner && type == SpawnerType.GPU)
             {
                 return true;
             }
@@ -238,15 +238,6 @@ namespace GP4
             {
                 _spawnerComboBox.SelectedItemIndex = (int)_type;
             }
-        }
-
-        void UpdateBounds()
-        {
-            var camera = Camera.main;
-            var height = camera.orthographicSize * 2;
-            var width = height * camera.aspect;
-
-            _lastBounds = new Bounds(Camera.main.transform.position.WithZ(0), new Vector2(width, height));
         }
 
         void UpdateUI()

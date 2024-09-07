@@ -31,7 +31,7 @@ namespace GP4
             if (random < 0.01f)
             {
                 // Small group
-                initData.position = rotationQ * new Vector2(Random.Range(-0.75f, 0.75f), Random.Range(-0.75f, 0.75f));
+                initData.position = rotationQ * new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
                 initData.scale = Vector2.one * Random.Range(4, 10f);
                 initData.color = smallPopulationColor;
                 initData.speed = Random.Range(1f, 5f);
@@ -39,7 +39,7 @@ namespace GP4
             } else if (random < 0.9f)
             {
                 // Large group
-                initData.position = rotationQ * new Vector3(Random.Range(-0.75f, 0.75f), Random.Range(-0.75f, 0.75f));
+                initData.position = rotationQ * new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
                 initData.scale = Vector2.one * Random.Range(0.5f, 2f);
                 initData.color = largePopulationColor;
                 initData.speed = Random.Range(5f, 30f);
@@ -48,7 +48,7 @@ namespace GP4
             else
             {
                 // Medium
-                initData.position = rotationQ * new Vector3(Random.Range(-0.75f, 0.75f), Random.Range(-0.75f, 0.75f));
+                initData.position = rotationQ * new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f));
                 initData.scale = Vector2.one * Random.Range(1f, 4f);
                 initData.color = mediumPopulationColor;
                 initData.speed = Random.Range(2, 15f);

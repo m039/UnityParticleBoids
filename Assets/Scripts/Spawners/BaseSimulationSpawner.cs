@@ -115,7 +115,7 @@ namespace GP4
                 {
                     var sb = sceneBounds();
                     var center = sb.center;
-                    var size = sb.size;
+                    var size = sb.size / 2f;
                     size = new Vector3(normalizedPosition.x * size.x, normalizedPosition.y * size.y);
                     return center + size;
                 }

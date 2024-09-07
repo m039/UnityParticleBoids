@@ -9,7 +9,10 @@ namespace GP4
 
         public struct InitData
         {
-            public Vector2 position; // Normalized positin (-0.5 .. 0.5, -0.5 .. 0.5)
+            /// <summary>
+            /// Normalized position (-0.5 .. 0.5, -0.5 .. 0.5)
+            /// </summary>
+            public Vector2 position;
             public float rotation;
             public Sprite sprite;
             public Color color;

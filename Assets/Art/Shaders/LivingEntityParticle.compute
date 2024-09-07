@@ -1,0 +1,60 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel Process
+
+struct Particle
+{
+    float2 position;
+    float rotation;
+    float2 scale;
+    float speed;
+    float4 baseColor;
+    float alpha;
+    float radius;
+    int layer;
+    int outOfBounds;
+};
+
+RWStructuredBuffer<Particle> _Particles;
+
+uint _NumberOfEnteties;
+float _Speed;
+float _DeltaTime;
+float2 _BoundSize;
+float2 _BoundCenter;
+
+float2 rotate(float2 position, float rotation)
+{
+    const float PI = 3.14159265359;
+    float angle = rotation * PI / 180.0;
+    float2x2 m = float2x2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    return mul(m, position);
+}
+
+[numthreads(32,1,1)]
+void Process(uint id : SV_DispatchThreadID)
+{
+    if (id >= _NumberOfEnteties)
+        return;
+    
+    Particle particle = _Particles[id];
+    if (particle.outOfBounds == 1)
+        return;
+    
+    float2 up = float2(0.0, 1.0);
+    up = rotate(up, particle.rotation);
+    
+    particle.position += particle.speed * up * particle.speed * _Speed * _DeltaTime;
+    
+    float xMin = _BoundCenter.x - _BoundSize.x / 2.0;
+    float yMin = _BoundCenter.y - _BoundSize.y / 2.0;
+    float xMax = _BoundCenter.x + _BoundSize.x / 2.0;
+    float yMax = _BoundCenter.y + _BoundSize.y / 2.0;
+    
+    if (particle.position.x < xMin || 
+        particle.position.x > xMax ||
+        particle.position.y < yMin ||
+        particle.position.y > yMax)
+    {
+        particle.outOfBounds = 1;
+    }
+}
