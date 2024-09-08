@@ -34,8 +34,11 @@ float2 rotate(float2 position, float rotation)
 
 float randomMinMax(uint id, float min, float max)
 {
-    float v = frac(sin(id * 12.9898) * 43758.5453);
-    return min + (max - min) * v;
+    id = id * 747796405u + 2891336453u;
+    uint state = id;
+    uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+    float f = ((word >> 22u) ^ word) / 4294967296.0;
+    return f * (max - min) + min;
 }
 
 [numthreads(BlockSize, 1, 1)]

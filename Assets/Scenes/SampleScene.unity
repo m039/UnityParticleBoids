@@ -369,10 +369,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 886800934499174902, guid: 2b8a75313ae6cfe4196b7740427d1eec, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -0.00012207031
-      objectReference: {fileID: 0}
     - target: {fileID: 1004032376837690313, guid: 2b8a75313ae6cfe4196b7740427d1eec, type: 3}
       propertyPath: m_Name
       value: NotificationMessage
@@ -620,7 +616,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d491769096496447856fbc6c55b0a8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SelectedType: 3
+  _SelectedType: 4
   _LivingEntityData: {fileID: 11400000, guid: c7218bb8db601ec4a8729b76518a26cc, type: 2}
   _LivingEntityDatas:
   - {fileID: 11400000, guid: e7b6680f8a003ea459621aa949065aa7, type: 2}
@@ -663,7 +659,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &722963538
 Transform:
   m_ObjectHideFlags: 0
@@ -1030,7 +1026,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1489204033
 Transform:
   m_ObjectHideFlags: 0
