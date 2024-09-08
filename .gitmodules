@@ -1,6 +1,6 @@
-[submodule "Packages/com.m039.common-unity-library"]
-	path = Packages/com.m039.common-unity-library
+[submodule "Packages/com.m039.common"]
+	path = Packages/com.m039.common
 	url = git@github.com:m039/CommonUnityLibrary.git
-[submodule "Packages/com.m039.unity-ui-toolbox"]
-	path = Packages/com.m039.unity-ui-toolbox
+[submodule "Packages/com.m039.ui-toolbox"]
+	path = Packages/com.m039.ui-toolbox
 	url = git@github.com:m039/UnityUIToolbox.git
