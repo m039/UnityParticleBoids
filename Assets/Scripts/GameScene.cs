@@ -152,7 +152,7 @@ namespace GP4
             };
             builder.AddItem(spawnerTypeItem);
 
-            var patterns = new ModularPanel.DropdownItem(Array.IndexOf(_LivingEntityDatas, _LivingEntityData), "Patterns");
+            var patterns = new ModularPanel.DropdownItem(Array.IndexOf(_LivingEntityDatas, _LivingEntityData), "Pattern");
             patterns.onValueChanged += v =>
             {
                 _LivingEntityData = _LivingEntityDatas[v];
